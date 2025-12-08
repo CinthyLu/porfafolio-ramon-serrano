@@ -1,12 +1,35 @@
-<!-- Contenido de Inicio -->
-<div class="home-content">
+<!-- Sección de Perfiles -->
+<section class="profiles-container">
+  <h2>Conoce a los Developers</h2>
+
+  <div class="profiles-grid">
+    
+    <div class="profile-card" [routerLink]="['/portfolio']" [queryParams]="{dev:'john-serrano'}">
+      <img src="assets/developers/john-serrano.jpg" alt="John Serrano" class="profile-avatar" />
+      <h3>John Serrano</h3>
+      <p>Full Stack Developer</p>
+    </div>
+
+    <div class="profile-card" [routerLink]="['/portfolio']" [queryParams]="{dev:'cinthya-ramon'}">
+      <img src="assets/developers/cinthya-ramon.jpg" alt="Cinthya Ramon" class="profile-avatar" />
+      <h3>Cinthya Ramon</h3>
+      <p>Frontend Developer</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- Sección Contenido Home -->
+<section class="home-content">
   <h2>Bienvenido a Mi Portafolio</h2>
   <p>Explora mis proyectos, servicios e información profesional</p>
-  
+
   <div class="button-group">
     <button class="btn btn-primary" routerLink="/portfolio">Ver Portafolio</button>
     <button class="btn btn-secondary" routerLink="/projects">Ver Proyectos</button>
     <button class="btn btn-secondary" routerLink="/consulting">Obtener Consultoría</button>
     <button class="btn btn-success" routerLink="/register">Únete Ahora</button>
   </div>
-</div>
+</section>
+
