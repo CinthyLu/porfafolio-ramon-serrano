@@ -1,1 +1,52 @@
-<p>footer works!</p>
+<footer class="footer-container">
+
+  <!-- Top Section -->
+  <div class="footer-content">
+
+    <!-- Brand -->
+    <div class="footer-brand">
+      <div class="logo-box">
+        <span class="logo-text-small">RS</span>
+      </div>
+      <h2 class="brand-title">Ramón Serrano</h2>
+      <p class="brand-description">
+        Full-stack developer building modern and scalable applications.
+      </p>
+    </div>
+
+    <!-- Navigation -->
+    <div class="footer-column">
+      <h3 class="footer-title">Navigation</h3>
+      <ul class="footer-links">
+        @for (link of navigationLinks; track link.path) {
+          <li>
+            <a [routerLink]="link.path" routerLinkActive="active">{{ link.label }}</a>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- Social -->
+    <div class="footer-column">
+      <h3 class="footer-title">Follow Me</h3>
+      <div class="footer-social">
+        @for (social of socialLinks; track social.label) {
+          <a 
+             [href]="social.url" 
+             class="social-icon" 
+             [title]="social.label"
+             target="_blank">
+            {{ social.icon }}
+          </a>
+        }
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Section -->
+  <div class="footer-bottom">
+    <p class="footer-copy">&copy; {{ currentYear }} Ramón Serrano. All rights reserved.</p>
+  </div>
+
+</footer>
