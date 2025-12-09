@@ -8,6 +8,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
   imports: [CommonModule],
   templateUrl: './upmedia.html',
   styleUrl: './upmedia.scss',
+
 })
 export class Upmedia {
  mediaUrl: string | null = null;
@@ -20,5 +21,6 @@ export class Upmedia {
     const archivoRef = ref(storage, ruta);
 
     const res = await uploadBytes( archivoRef , file);
+    //ggjjhj
   }
 }
