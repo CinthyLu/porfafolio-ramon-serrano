@@ -1,0 +1,13 @@
+<div class="upload-container">
+  <h3>Subir Imagen o Video</h3>
+
+  <input type="file" accept="image/*,video/*" (change)="onFileSelected($event)" />
+
+  <div class="preview" *ngIf="mediaUrl">
+
+    <img *ngIf="mediaType === 'image'" [src]="mediaUrl" alt="Vista previa" />
+
+    <video *ngIf="mediaType === 'video'" [src]="mediaUrl" controls></video>
+
+  </div>
+</div>

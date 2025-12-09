@@ -2,6 +2,9 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { App } from './app/app';
 import { initializeApp } from 'firebase/app';
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+
 
 
 
@@ -19,6 +22,9 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+
 
 bootstrapApplication(App, appConfig)
   .catch((err) => console.error(err));
