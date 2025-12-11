@@ -3,20 +3,63 @@ import { Home } from './features/home/home';
 import { Login } from './features/forms/login/login';
 import { Register } from './features/forms/register/register';
 import { Users } from './features/management/users/users';
-import { Portfolio } from './features/management/portfolio/portfolio';
+import { Portfolio } from './features/management/appointments/portfolio/portfolio';
 import { Projects } from './features/management/projects/projects';
+import { MyProjects } from './features/management/projects/my-projects';
 import { Consulting } from './features/consulting/consulting';
+import { Schedule } from './features/consulting/schedule';
 import { Upmedia } from './upmedia/upmedia';
+import { Appointments } from './features/management/appointments/appointments';
+import { Role } from './models/role.enum';
+import { RoleGuard } from './guards/role.guard';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-    { path: '', component: Home},
-    { path: 'home', component: Home },
-    { path: 'login', component: Login },
-    { path: 'register', component: Register },
-    { path: 'users', component: Users },
-    { path: 'portfolio', component: Portfolio },
-    { path: 'projects', component: Projects },
-    { path: 'consulting', component: Consulting },
-    { path: '**', redirectTo: '' },
-  
+  { path: '', component: Home },
+  { path: 'home', component: Home },
+
+  // PUBLIC
+  { path: 'projects', component: Projects },
+  { path: 'consulting', component: Consulting },
+
+  // LOGIN / REGISTER
+  { path: 'login', component: Login },
+  { path: 'register', component: Register },
+
+  // REQUIERE LOGIN NORMAL
+  {
+    path: 'consulting/schedule',
+    component: Schedule,
+    canActivate: [AuthGuard]
+  },
+
+  // ADMIN
+  {
+    path: 'users',
+    component: Users,
+    canActivate: [RoleGuard],
+    data: { roles: Role.Admin }
+  },
+  {
+    path: 'portfolio',
+    component: Portfolio,
+    canActivate: [RoleGuard],
+    data: { roles: Role.Admin }
+  },
+
+  // PROGRAMADOR
+  {
+    path: 'my-projects',
+    component: MyProjects,
+    canActivate: [RoleGuard],
+    data: { roles: Role.Programmer }
+  },
+  {
+    path: 'appointments',
+    component: Appointments,
+    canActivate: [RoleGuard],
+    data: { roles: Role.Programmer }
+  },
+
+  { path: '**', redirectTo: '' },
 ];

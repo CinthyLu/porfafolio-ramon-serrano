@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { collection, addDoc, setDoc, doc } from "firebase/firestore"; 
 import { db } from '../../../../main';
+import { Role } from '../../../models/role.enum';
 
 
 @Component({
@@ -31,7 +32,7 @@ password1: string = '';
     fullName: this.fullName,
     email: this.email,
     password: this.password,
-    
+    role: Role.User,
   });
   console.log("Document written with ID: ", docRef);
 } catch (e) {

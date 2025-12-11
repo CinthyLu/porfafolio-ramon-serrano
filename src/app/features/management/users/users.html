@@ -1,5 +1,5 @@
 <!-- Users Management -->
-<div class="users-container">
+<div class="users-container panel-admin">
   <h2>Users Management</h2>
   <p>Manage and view all users</p>
   
@@ -14,9 +14,37 @@
         </tr>
       </thead>
       <tbody> 
-         
+        <tr *ngFor="let p of programmers">
+          <td>{{p.fullName}}</td>
+          <td>{{p.email}}</td>
+          <td>{{p.role}}</td>
+          <td>
+            <button class="btn btn-sm" (click)="deleteUser(p.id)">Eliminar</button>
+          </td>
+        </tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="create-programmer">
+    <h3>Crear Programador</h3>
+    <form (ngSubmit)="createProgrammer()">
+      <label>Nombre</label>
+      <input name="fullName" [(ngModel)]="fullName" />
+
+      <label>Email</label>
+      <input name="email" [(ngModel)]="email" />
+
+      <label>Especialidad</label>
+      <input name="specialty" [(ngModel)]="specialty" />
+
+      <label>Breve descripción</label>
+      <textarea name="bio" [(ngModel)]="bio"></textarea>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit" [disabled]="creating">Crear</button>
+      </div>
+    </form>
   </div>
   
   <div class="nav-buttons">

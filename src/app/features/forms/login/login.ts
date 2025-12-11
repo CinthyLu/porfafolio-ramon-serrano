@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { NgIf, NgClass } from '@angular/common';
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -24,7 +25,7 @@ throw new Error('Method not implemented.');
   private notificationTimeout: any;
 
 
-constructor(private router: Router)
+constructor(private router: Router, private route: ActivatedRoute)
  {
 
 }
@@ -39,19 +40,27 @@ constructor(private router: Router)
     }, duration);
   }
 
-  loginWithGoogle() {
-   const provider = new GoogleAuthProvider();
+loginWithGoogle() {
+  const provider = new GoogleAuthProvider();
   const auth = getAuth();
 
-    //de firebase docs
-    signInWithPopup(auth, provider)
-  .then((result) => {
-    this.showNotification('Inicio de sesión exitoso', 'success');
-    this.router.navigate(['/main']);
+  signInWithPopup(auth, provider)
+    .then(() => {
+      this.showNotification('Inicio de sesión exitoso', 'success');
 
-  }).catch((error) => {
-    this.showNotification('Ocurrió un error inesperado', 'error');
-  });
+      const redirectTo = this.route.snapshot.queryParamMap.get('redirectTo');
+
+      if (redirectTo) {
+        this.router.navigateByUrl(redirectTo);
+      } else {
+        // Página normal cuando no hay redirectTo
+        this.router.navigateByUrl('/');
+      }
+
+    })
+    .catch(() => {
+      this.showNotification('Ocurrió un error inesperado', 'error');
+    });
 }
 
 desplegarExito(){
@@ -66,4 +75,6 @@ desplegarExito(){
     this.showNotification('¿Estás seguro de cerrar sesión?', 'info', 4000);
   }
 
+
+  
 }

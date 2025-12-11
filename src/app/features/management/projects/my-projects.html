@@ -1,0 +1,48 @@
+<div class="my-projects panel-programmer">
+  <h2>Mis Proyectos</h2>
+
+  <div class="project-form">
+    <label>Nombre</label>
+    <input [(ngModel)]="name" name="name" />
+
+    <label>Descripción</label>
+    <textarea [(ngModel)]="description" name="description"></textarea>
+
+    <label>Categoría</label>
+    <select [(ngModel)]="category" name="category">
+      <option value="academic">Proyectos Académicos</option>
+      <option value="laboral">Proyectos Laborales</option>
+    </select>
+
+    <label>Participación</label>
+    <select [(ngModel)]="participation" name="participation">
+      <option>Frontend</option>
+      <option>Backend</option>
+      <option>Base de Datos</option>
+      <option>Fullstack</option>
+    </select>
+
+    <label>Tecnologías (separadas por coma)</label>
+    <input [(ngModel)]="technologies" name="technologies" />
+
+    <label>Repositorio</label>
+    <input [(ngModel)]="repoUrl" name="repoUrl" />
+
+    <label>Deploy / Demo</label>
+    <input [(ngModel)]="deployUrl" name="deployUrl" />
+
+    <div class="form-actions">
+      <button class="btn btn-primary" (click)="create()" [disabled]="loading">Crear Proyecto</button>
+    </div>
+  </div>
+
+  <h3>Proyectos existentes</h3>
+  <div class="projects-list">
+    <div *ngFor="let p of projects" class="project-card">
+      <h4>{{p.name}}</h4>
+      <p>{{p.description}}</p>
+      <p><strong>Tecnologías:</strong> {{p.technologies?.join(', ')}}</p>
+      <div class="actions"><button class="btn btn-sm" (click)="delete(p.id)">Eliminar</button></div>
+    </div>
+  </div>
+</div>

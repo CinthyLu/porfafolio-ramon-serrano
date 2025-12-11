@@ -36,3 +36,31 @@
   color: #4f46e5;
   font-weight: 600;
 }
+
+/* Role-specific nav styles */
+.navbar {
+  padding: 12px 20px;
+  background: #fff;
+}
+.navbar.nav-admin {
+  background: linear-gradient(90deg, #0f172a, #111827);
+  color: #fff;
+}
+.navbar.nav-admin .nav-links a { color: #fff; }
+.navbar.nav-programmer {
+  background: linear-gradient(90deg, #2563eb, #4f46e5);
+  color: #fff;
+}
+.navbar.nav-user {
+  background: linear-gradient(90deg, #10b981, #06b6d4);
+  color: #fff;
+}
+
+.profile-name { font-weight: 600; margin-left: 12px; }
+.link-btn { background: transparent; border: none; color: inherit; cursor: pointer; margin-left: 8px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+  .nav-container { display: flex; flex-direction: column; gap: 8px; }
+}

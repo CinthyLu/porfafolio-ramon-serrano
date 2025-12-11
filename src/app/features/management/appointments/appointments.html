@@ -1,0 +1,32 @@
+<div class="appointments-container panel-programmer">
+  <h2>Solicitudes de Asesoría</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Solicitante</th>
+        <th>Fecha y Hora</th>
+        <th>Comentario</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let a of appointments">
+        <td>{{a.userId || 'Anonimo'}}</td>
+        <td>{{a.datetime | date:'short'}}</td>
+        <td>{{a.comment}}</td>
+        <td>{{a.status}}</td>
+        <td>
+          <button class="btn btn-sm" *ngIf="a.status === 'pending'" (click)="respond(a.id, true)">Aprobar</button>
+          <button class="btn btn-sm" *ngIf="a.status === 'pending'" (click)="respond(a.id, false)">Rechazar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" routerLink="/">Volver</button>
+  </div>
+</div>
+

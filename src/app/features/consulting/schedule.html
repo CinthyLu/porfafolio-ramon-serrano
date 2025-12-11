@@ -1,0 +1,28 @@
+<div class="schedule-container panel-user">
+  <h2>Agendar Asesoría</h2>
+
+  <form (ngSubmit)="submit()">
+    <label>Seleccionar Programador</label>
+    <select [(ngModel)]="selectedProgrammer" name="programmer">
+      <option value="">-- Seleccionar --</option>
+      <option *ngFor="let p of programmers" [value]="p.id">{{p.fullName}} - {{ getLabel(p) }}</option>
+    </select>
+
+    <label>Fecha</label>
+    <input type="date" [(ngModel)]="date" name="date" />
+
+    <label>Hora</label>
+    <input type="time" [(ngModel)]="time" name="time" />
+
+    <label>Comentario (opcional)</label>
+    <textarea [(ngModel)]="comment" name="comment"></textarea>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit" [disabled]="submitting">Enviar Solicitud</button>
+    </div>
+  </form>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" routerLink="/">Volver</button>
+  </div>
+</div>
