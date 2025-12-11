@@ -124,3 +124,34 @@
   width: 1.5rem;
   height: 1.5rem;
 }
+
+.notification {
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 250px;
+  max-width: 90vw;
+  padding: 16px 32px;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  z-index: 2000;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  opacity: 0.95;
+  animation: fadeIn 0.3s;
+}
+.notification.success {
+  background: #27ae60;
+}
+.notification.error {
+  background: #e74c3c;
+}
+.notification.info {
+  background: #2d8cf0;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px) translateX(-50%); }
+  to { opacity: 0.95; transform: translateY(0) translateX(-50%); }
+}

@@ -9,7 +9,7 @@ import { Consulting } from './features/consulting/consulting';
 import { Upmedia } from './upmedia/upmedia';
 
 export const routes: Routes = [
-    { path: '', component: Upmedia},
+    { path: '', component: Home},
     { path: 'home', component: Home },
     { path: 'login', component: Login },
     { path: 'register', component: Register },
@@ -18,5 +18,5 @@ export const routes: Routes = [
     { path: 'projects', component: Projects },
     { path: 'consulting', component: Consulting },
     { path: '**', redirectTo: '' },
-    // { path: 'prueba', component: Upmedia }
+  
 ];

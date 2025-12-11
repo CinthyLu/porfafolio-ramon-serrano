@@ -1,3 +1,8 @@
+<!-- Notificación -->
+<div *ngIf="notification.visible" class="notification" [ngClass]="notification.type">
+  {{ notification.message }}
+</div>
+
 <!-- Login Form -->
 <div class="login-container">
   <form action="" class="form">
@@ -15,6 +20,12 @@
           </svg>
                       Continue with Google
                   </button>
+                  
+
+  <button class="oauthButton" (click)="desplegarConfirmacion()">Confirmación</button>
+  <button class="oauthButton" (click)="desplegarExito()">Éxito</button>
+  <button class="oauthButton" (click)="desplegarError()">Error</button>
+
      
       <div class="separator">
           <div></div>
@@ -32,4 +43,3 @@
     <p>Don't have an account? <a routerLink="/register">Register here</a></p>
     <p><a routerLink="/">Back to Home</a></p>
   </div>
-</div>
