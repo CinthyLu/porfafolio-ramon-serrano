@@ -1,157 +1,195 @@
-/* From Uiverse.io by D3OXY */ 
-/* DEOXY Was Here */
+/* ====== FONDO MINIMALISTA COLORIDO (GLASMORPHISM) ====== */
+body,
+:host {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+  font-family: "Poppins", sans-serif;
+}
+
+/* ====== CONTENEDOR CENTRADO ====== */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 25px;
+  border-radius: 15px;
+
+  /* Glass effect */
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+}
+
+/* ====== TU FORM ORIGINAL PERO ADAPTADO ====== */
 .form {
-  --background: #d3d3d3;
+  --background: rgba(255, 255, 255, 0.55);
   --input-focus: #2d8cf0;
   --font-color: #323232;
   --font-color-sub: #666;
   --bg-color: #fff;
   --main-color: #323232;
-  padding: 20px;
+
+  padding: 20px 25px;
+  width: 300px;
+
   background: var(--background);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
   gap: 20px;
-  border-radius: 5px;
+  border-radius: 10px;
   border: 2px solid var(--main-color);
   box-shadow: 4px 4px var(--main-color);
 }
 
+/* ====== TÍTULO ====== */
 .form > p {
-  font-family: var(--font-DelaGothicOne);
   color: var(--font-color);
   font-weight: 700;
-  font-size: 20px;
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
+  font-size: 22px;
+  text-align: center;
 }
 
 .form > p > span {
-  font-family: var(--font-SpaceMono);
   color: var(--font-color-sub);
-  font-weight: 600;
-  font-size: 17px;
+  font-size: 16px;
 }
 
-.separator {
+/* ====== INPUTS ====== */
+.form > input {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
+  height: 45px;
+  border-radius: 6px;
+  border: 2px solid var(--main-color);
+  background-color: var(--bg-color);
+  box-shadow: 4px 4px var(--main-color);
+  font-size: 15px;
+  padding: 5px 10px;
+  outline: none;
 }
 
-.separator > div {
-  width: 100px;
-  height: 3px;
-  border-radius: 5px;
-  background-color: var(--font-color-sub);
-}
-
-.separator > span {
-  color: var(--font-color);
-  font-family: var(--font-SpaceMono);
-  font-weight: 600;
-}
-
+/* ====== BOTÓN UIVERSE MEJORADO ====== */
 .oauthButton {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 5px;
-    /* margin: 50px auto 0 auto; */
-  padding: auto 15px 15px auto;
-  width: 250px;
-  height: 40px;
-  border-radius: 5px;
+  gap: 7px;
+
+  width: 100%;
+  height: 45px;
+
+  border-radius: 6px;
   border: 2px solid var(--main-color);
   background-color: var(--bg-color);
   box-shadow: 4px 4px var(--main-color);
   font-size: 16px;
   font-weight: 600;
   color: var(--font-color);
+
   cursor: pointer;
-  transition: all 250ms;
+  transition: 0.3s;
+
   position: relative;
   overflow: hidden;
-  z-index: 1;
+}
+
+.oauthButton:hover {
+  transform: translateY(-2px);
 }
 
 .oauthButton::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 0;
+  inset: 0;
+  width: 0%;
   background-color: #212121;
   z-index: -1;
-  -webkit-box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
-  box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
-  transition: all 250ms;
+  transition: 0.3s;
 }
 
 .oauthButton:hover {
-  color: #e8e8e8;
+  color: #fafafa;
 }
 
 .oauthButton:hover::before {
   width: 100%;
 }
 
-.form {
-    width: 300px;
-}
-
-.form > input {
-  width: 250px;
-  height: 40px;
-  border-radius: 5px;
-  border: 2px solid var(--main-color);
-  background-color: var(--bg-color);
-  box-shadow: 4px 4px var(--main-color);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--font-color);
-  padding: 5px 10px;
-  outline: none;
-}
-
+/* ICON */
 .icon {
   width: 1.5rem;
   height: 1.5rem;
 }
 
+/* ====== SEPARATOR ====== */
+.separator {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.separator div {
+  flex: 1;
+  height: 2px;
+  background: var(--font-color-sub);
+}
+
+.separator span {
+  color: var(--font-color);
+  font-size: 14px;
+}
+
+/* ====== ENLACES ====== */
+.auth-links {
+  text-align: center;
+  margin-top: 10px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.auth-links a {
+  color: white;
+  text-decoration: underline;
+}
+
+/* ====== NOTIFICACIÓN ====== */
 .notification {
   position: fixed;
   top: 30px;
   left: 50%;
   transform: translateX(-50%);
   min-width: 250px;
-  max-width: 90vw;
   padding: 16px 32px;
   border-radius: 8px;
   color: #fff;
   font-weight: 600;
-  font-size: 1rem;
   z-index: 2000;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  opacity: 0.95;
-  animation: fadeIn 0.3s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  animation: fadeIn 0.3s ease;
 }
+
 .notification.success {
   background: #27ae60;
 }
+
 .notification.error {
   background: #e74c3c;
 }
+
 .notification.info {
   background: #2d8cf0;
 }
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-20px) translateX(-50%); }
-  to { opacity: 0.95; transform: translateY(0) translateX(-50%); }
+  from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }

@@ -1,44 +1,66 @@
+<!-- HERO SECTION -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>DevFusion Studio</h1>
+    <h2>Creamos soluciones digitales con impacto real</h2>
+    <p>
+      Somos un equipo de desarrolladores apasionados. Transformamos ideas en aplicaciones modernas,
+      optimizadas y listas para producción. Tu proyecto merece calidad, innovación y compromiso.
+    </p>
+
+    <div class="hero-buttons">
+      <button routerLink="/projects" class="hero-btn-primary">Ver Proyectos</button>
+      <button routerLink="/consulting" class="hero-btn-secondary">Solicitar Consultoría</button>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="circle"></div>
+    <div class="circle two"></div>
+  </div>
+</section>
+
 <!-- Sección de Perfiles -->
 <section class="profiles-container">
   <h2>Conoce a los Developers</h2>
 
   <div class="profiles-grid">
 
-  <div class="profile-card" [routerLink]="['/portfolio']" [queryParams]="{dev:'cinthya-ramon'}">
-    <iframe src="https://www.canva.com/design/DAG69pWr-EQ/Cny4BHGkdllr15sWEftytA/view?embed"
-        style="width:200px; height:200px; border:none; border-radius:50%; overflow:hidden;">
-    </iframe>
-    <h3>Cinthya Ramón</h3>
-    <p>Frontend Developer</p>
-</div>
+    <div class="profile-card" [routerLink]="['/portfolio']" [queryParams]="{dev:'cinthya-ramon'}">
+      <iframe 
+        src="https://www.canva.com/design/DAG69pWr-EQ/Cny4BHGkdllr15sWEftytA/view?embed"
+        class="profile-avatar">
+      </iframe>
+      <h3>Cinthya Ramón</h3>
+      <p>Frontend Developer</p>
+    </div>
 
-<div class="profile-card" [routerLink]="['/portfolio']" [queryParams]="{dev:'john-serrano'}">
-    <iframe src="https://www.canva.com/design/DAG69i-u-r0/8StYXjl2pXTzCkucN0iqzw/view?embed"
-        style="width:200px; height:200px; border:none; border-radius:50%; overflow:hidden;">
-    </iframe>
-    <h3>John Serrano</h3>
-    <p>Full Stack Developer</p>
-</div>
-
+    <div class="profile-card" [routerLink]="['/portfolio']" [queryParams]="{dev:'john-serrano'}">
+      <iframe 
+        src="https://www.canva.com/design/DAG69i-u-r0/8StYXjl2pXTzCkucN0iqzw/view?embed"
+        class="profile-avatar">
+      </iframe>
+      <h3>John Serrano</h3>
+      <p>Full Stack Developer</p>
+    </div>
 
   </div>
 </section>
 
-
-<!-- Sección Contenido Home -->
+<!-- Proyectos -->
 <section class="home-content">
-  <h2>Proyectos destacados</h2>
+  <h2>Proyectos Destacados</h2>
   <p>Explora nuestros proyectos, servicios e información profesional</p>
 
   <div class="button-group">
-    
     <button class="btn btn-secondary" routerLink="/projects">Ver Proyectos</button>
     <button class="btn btn-secondary" routerLink="/consulting">Obtener Consultoría</button>
     <button class="btn btn-success" routerLink="/register">Únete Ahora</button>
   </div>
 </section>
 
+<!-- Contacto -->
 <section class="home-content">
   <h2>Contactos y Consultas</h2>
-  <p>Explora nuestros proyectos, servicios e información profesional</p>
-  </section>
+  <p>Puedes comunicarte con nosotros para proyectos, servicios o asesoría personalizada.</p>
+</section>

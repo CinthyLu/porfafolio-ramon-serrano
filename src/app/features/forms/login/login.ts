@@ -11,6 +11,9 @@ import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
   styleUrl: './login.scss',
 })
 export class Login {
+login() {
+throw new Error('Method not implemented.');
+}
   PopUpsComponent: any;
   ConfirmDialogsComponent: any;
   notification = {
