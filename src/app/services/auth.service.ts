@@ -8,79 +8,87 @@ import { Role } from '../models/role.enum';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private currentFirebaseUser: FirebaseUser | null = null;
+
+  private auth = getAuth();
+
+  /** usuario Firebase crudo (solo UID, email, photo, etc.) */
+  private firebaseUser: FirebaseUser | null = null;
+
+  /** perfil de Firestore */
   private userSubject = new BehaviorSubject<User | null>(null);
   public user$ = this.userSubject.asObservable();
 
-  // indica que onAuthStateChanged ya fue invocado al menos 1 vez
+  /** indica que onAuthStateChanged ya corrió */
   private readySubject = new BehaviorSubject<boolean>(false);
   public ready$ = this.readySubject.asObservable();
 
   constructor() {
-    const auth = getAuth();
-    onAuthStateChanged(auth, async (u) => {
-      this.currentFirebaseUser = u;
+    onAuthStateChanged(this.auth, async (user) => {
+      console.log('[auth] onAuthStateChanged ->', user);
 
-      // cargamos perfil (si existe)
-      if (u && u.email) {
-        const profile = await this.loadUserProfileByEmail(u.email);
+      this.firebaseUser = user;
+
+      if (user?.email) {
+        // cargamos perfil desde Firestore
+        const profile = await this.loadUserProfileByEmail(user.email);
         this.userSubject.next(profile);
       } else {
         this.userSubject.next(null);
       }
 
-      // IMPORTANTE: señalamos que ya terminó el primer onAuthStateChanged
+      // primera vez que Firebase responde
       if (!this.readySubject.value) {
         this.readySubject.next(true);
       }
     });
   }
 
-  async loadUserProfileByEmail(email: string): Promise<User | null> {
+  /** Cargar perfil por email desde Firestore */
+  private async loadUserProfileByEmail(email: string): Promise<User | null> {
     try {
-      // Nota: en tu implementación original usabas el email como id del doc.
-      // Asegúrate de tener la colección 'users' con doc id = email o cambia:
-      const docRef = doc(db, 'users', email);
-      const snap = await getDoc(docRef);
+      const ref = doc(db, 'users', email);
+      const snap = await getDoc(ref);
+
       if (snap.exists()) {
         const data = snap.data() as User;
         data.id = snap.id;
         return data;
       }
+
       return null;
-    } catch (e) {
-      console.error('Error loading user profile', e);
+    } catch (err) {
+      console.error('[auth] Error cargando perfil:', err);
       return null;
     }
   }
 
+  /** Perfil actual ya mapeado + rol (lo que usas en guards) */
   get currentUser(): User | null {
     return this.userSubject.value;
   }
 
+  /** Verificar rol */
   hasRole(role: Role | Role[]): boolean {
     const user = this.currentUser;
     if (!user) return false;
+
     if (Array.isArray(role)) return role.includes(user.role);
     return user.role === role;
   }
 
-  async signOut() {
-    try {
-      const auth = getAuth();
-      await auth.signOut();
-      this.userSubject.next(null);
-    } catch (e) {
-      console.error('Error signing out', e);
-    }
+  /** Cerrar sesión */
+  async signOut(): Promise<void> {
+    await this.auth.signOut();
+    this.userSubject.next(null);
   }
 
-  // helper para código que necesite esperar a que auth+profile estén listos
+  /** Esperar a que Firebase termine de verificar si hay usuario */
   async waitUntilReady(): Promise<void> {
     if (this.readySubject.value) return;
-    return new Promise(resolve => {
-      const sub = this.ready$.subscribe(v => {
-        if (v) {
+
+    return new Promise((resolve) => {
+      const sub = this.ready$.subscribe((ready) => {
+        if (ready) {
           sub.unsubscribe();
           resolve();
         }

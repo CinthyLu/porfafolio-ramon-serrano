@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { NgIf, NgClass } from '@angular/common';
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { ActivatedRoute } from '@angular/router';
-
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -12,23 +11,19 @@ import { ActivatedRoute } from '@angular/router';
   styleUrl: './login.scss',
 })
 export class Login {
-login() {
-throw new Error('Method not implemented.');
-}
-  PopUpsComponent: any;
-  ConfirmDialogsComponent: any;
+
   notification = {
     visible: false,
     message: '',
-    type: '' // 'success', 'error', 'info'
+    type: '' // success | error | info
   };
   private notificationTimeout: any;
 
-
-constructor(private router: Router, private route: ActivatedRoute)
- {
-
-}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private authService: AuthService
+  ) {}
 
   private showNotification(message: string, type: string = 'info', duration: number = 3000) {
     this.notification.message = message;
@@ -40,30 +35,38 @@ constructor(private router: Router, private route: ActivatedRoute)
     }, duration);
   }
 
-loginWithGoogle() {
-  const provider = new GoogleAuthProvider();
-  const auth = getAuth();
+  async loginWithGoogle() {
+    console.log('[login] loginWithGoogle() iniciar');
+    const provider = new GoogleAuthProvider();
+    const auth = getAuth();
 
-  signInWithPopup(auth, provider)
-    .then(() => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      console.log('[login] signInWithPopup -> success, result:', result);
       this.showNotification('Inicio de sesión exitoso', 'success');
 
-      const redirectTo = this.route.snapshot.queryParamMap.get('redirectTo');
+      // leer redirectTo y normalizar
+      const redirectToRaw = this.route.snapshot.queryParamMap.get('redirectTo') || '/';
+      const redirectTo = decodeURIComponent(redirectToRaw);
+      const path = redirectTo.startsWith('/') ? redirectTo : '/' + redirectTo;
+      console.log('[login] redirectTo param =', redirectTo);
 
-      if (redirectTo) {
-        this.router.navigateByUrl(redirectTo);
-      } else {
-        // Página normal cuando no hay redirectTo
-        this.router.navigateByUrl('/');
-      }
+      // ---> ESPERAMOS hasta que AuthService confirme que firebase+perfil están listos
+      console.log('[login] esperando authService.waitUntilReady()...');
+      await this.authService.waitUntilReady();
+      console.log('[login] authService listo, currentUser =', this.authService.currentUser);
 
-    })
-    .catch(() => {
+      // ahora sí navegamos
+      await this.router.navigateByUrl(path);
+      console.log('[login] navegación completada a', path);
+
+    } catch (error) {
+      console.error('[login] signInWithPopup error', error);
       this.showNotification('Ocurrió un error inesperado', 'error');
-    });
-}
+    }
+  }
 
-desplegarExito(){
+  desplegarExito(){
     this.showNotification('Inicio de sesión exitoso', 'success');
   }
 
@@ -74,7 +77,4 @@ desplegarExito(){
   desplegarConfirmacion(){
     this.showNotification('¿Estás seguro de cerrar sesión?', 'info', 4000);
   }
-
-
-  
 }

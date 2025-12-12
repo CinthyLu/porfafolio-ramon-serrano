@@ -59,6 +59,14 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          
+          "options": {
+            "headers": {
+              "Cross-Origin-Opener-Policy": "unsafe-none",
+              "Cross-Origin-Embedder-Policy": "unsafe-none"
+            }
+          },
+
           "configurations": {
             "production": {
               "buildTarget": "portafolio-ramon-serrano:build:production"

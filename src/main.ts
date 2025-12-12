@@ -1,16 +1,13 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { App } from './app/app';
+
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
-
-
-
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
+// Configuración Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyAowoaYA8HiDgtoYGSrAWNzRVecEq8hilw",
   authDomain: "portafolio-ramon-serrano.firebaseapp.com",
@@ -20,11 +17,16 @@ const firebaseConfig = {
   appId: "1:1046585243904:web:85aef0b784358846cc1be5"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Inicializar Firebase
+export const app = initializeApp(firebaseConfig);
+
+// 🔥 ESTE FALTABA 🔥
+export const auth = getAuth(app);
+
+// Firestore / Storage
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-
+// Bootstrap Angular
 bootstrapApplication(App, appConfig)
-  .catch((err) => console.error(err));
+  .catch(err => console.error(err));
