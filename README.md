@@ -1,6 +1,6 @@
 Porfafolio Ramon Serrano
 
-Este proyecto es un portafolio profesional desarrollado con Angular y Firebase, diseñado para mostrar y gestionar proyectos, usuarios, citas y servicios de consultoría. Incluye autenticación, gestión de usuarios, administración de proyectos, agendamiento de citas y funcionalidades de comunicación.
+Este proyecto es un portafolio profesional desarrollado con Angular y Firebase, diseñado para mostrar y gestionar proyectos, usuarios, citas y servicios de consultoría. Incluye autenticación, gestión de usuarios, administración de proyectos, agendamiento de citas, comunicación interna y notificaciones.
 
 ## Tabla de Contenidos
 - [Descripción General](#descripción-general)
@@ -22,12 +22,29 @@ Este portafolio permite a los usuarios:
 - Comunicarse mediante formularios y notificaciones.
 
 ## Características Principales
-- **Autenticación y roles:** Registro, login y control de acceso por roles (usuario, programador, administrador).
-- **Gestión de proyectos:** Visualización, creación y edición de proyectos.
-- **Agendamiento de citas:** Solicitud y administración de citas de consultoría.
-- **Panel de administración:** Gestión de usuarios, proyectos y citas.
-- **Interfaz moderna:** UI responsiva y atractiva.
-- **Integración con Firebase:** Autenticación, Firestore y funciones serverless.
+- **Autenticación y roles:**
+	- Registro de nuevos usuarios.
+	- Inicio de sesión seguro.
+	- Control de acceso por roles (usuario, programador, administrador).
+- **Gestión de proyectos:**
+	- Visualización de proyectos públicos y privados.
+	- Creación, edición y eliminación de proyectos (según permisos).
+- **Agendamiento de citas:**
+	- Solicitud de citas de consultoría desde la sección de consultoría.
+	- Visualización de citas agendadas.
+	- Confirmación, edición o cancelación de citas (según rol).
+- **Gestión de usuarios:**
+	- Listado y administración de usuarios (solo administradores).
+	- Asignación de roles y permisos.
+- **Panel de administración:**
+	- Gestión centralizada de usuarios, proyectos y citas.
+- **Comunicación y notificaciones:**
+	- Envío de mensajes internos y notificaciones de eventos importantes.
+	- Formularios de contacto y confirmaciones.
+- **Interfaz moderna:**
+	- UI responsiva y atractiva, compatible con dispositivos móviles.
+- **Integración con Firebase:**
+	- Autenticación, Firestore y funciones serverless para lógica de backend.
 
 ## Estructura del Proyecto
 ```
@@ -75,9 +92,24 @@ porfafolio-ramon-serrano/
 	```
 
 ## Uso
-- Accede a la aplicación en `http://localhost:4200`.
-- Regístrate o inicia sesión para acceder a funcionalidades avanzadas.
-- Navega por los proyectos, agenda citas o administra usuarios según tu rol.
+1. **Acceso a la aplicación:**
+	- Ingresa a `http://localhost:4200`.
+2. **Registro e inicio de sesión:**
+	- Regístrate como nuevo usuario o inicia sesión con tus credenciales.
+	- El sistema asigna permisos según el rol (usuario, programador, administrador).
+3. **Visualización de proyectos:**
+	- Explora los proyectos disponibles desde la sección principal.
+	- Si tienes permisos, puedes crear, editar o eliminar proyectos.
+4. **Solicitar y gestionar citas:**
+	- Ve a la sección de consultoría y solicita una cita.
+	- Consulta el estado de tus citas y recibe notificaciones de confirmación o cambios.
+	- Los administradores y programadores pueden gestionar todas las citas.
+5. **Gestión de usuarios:**
+	- Los administradores pueden ver, editar y eliminar usuarios, así como asignar roles.
+6. **Comunicación y notificaciones:**
+	- Utiliza los formularios de contacto para enviar mensajes o recibir notificaciones importantes.
+7. **Panel de administración:**
+	- Accede a la administración centralizada para gestionar usuarios, proyectos y citas (según permisos).
 
 ## Tecnologías Utilizadas
 - **Angular** (frontend)
@@ -93,63 +125,75 @@ porfafolio-ramon-serrano/
 ## Contribución
 ¡Las contribuciones son bienvenidas! Por favor, abre un issue o pull request para sugerencias o mejoras.
 
-## Licencia
-Este proyecto está bajo la licencia MIT.
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.8.
+## Informe de Desarrollo
 
-## Development server
+### Proceso de desarrollo
+El desarrollo de este portafolio se realizó siguiendo una arquitectura modular basada en Angular, separando las funcionalidades en módulos y componentes reutilizables. Se empleó Firebase para la autenticación, base de datos en tiempo real (Firestore) y funciones serverless, permitiendo una integración ágil y escalable.
 
-To start a local development server, run:
+El flujo de trabajo incluyó:
+- Análisis de requerimientos y definición de roles (usuario, programador, administrador).
+- Diseño de la estructura de carpetas y modelos de datos.
+- Implementación de la autenticación y guards de rutas.
+- Desarrollo de componentes para gestión de proyectos, usuarios y citas.
+- Integración de servicios de comunicación y notificaciones.
+- Pruebas unitarias y de integración.
 
-```bash
-ng serve
-```
+### Decisiones de diseño
+- **Angular** fue elegido por su robustez, modularidad y ecosistema.
+- **Firebase** por su facilidad de integración, autenticación segura y base de datos en tiempo real.
+- **SCSS** para estilos escalables y mantenibles.
+- Separación clara entre lógica de negocio (servicios), presentación (componentes) y modelos de datos.
+- Uso de guards para proteger rutas según roles.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### Desafíos enfrentados
+- Integrar la autenticación de Firebase con el control de roles personalizados.
+- Sincronizar datos en tiempo real entre Firestore y la UI.
+- Manejar la escalabilidad de la gestión de citas y proyectos.
+- Garantizar una experiencia de usuario fluida y responsiva en todos los dispositivos.
+- Implementar notificaciones y confirmaciones en tiempo real.
 
-## Code scaffolding
+## Documentación de Configuración y Despliegue
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Configuración local
+1. Clona el repositorio y entra en la carpeta del proyecto.
+2. Instala las dependencias con `npm install`.
+3. Crea un proyecto en Firebase y configura Authentication (correo/contraseña) y Firestore.
+4. Descarga el archivo de configuración de Firebase y colócalo en el entorno adecuado (`src/environments/environment.ts`).
+5. Inicia la aplicación con `npm start` o `ng serve`.
+6. Accede a `http://localhost:4200`.
 
-```bash
-ng generate component component-name
-```
+### Despliegue en producción
+1. Ejecuta `ng build --prod` para generar los archivos de producción en la carpeta `dist/`.
+2. Si usas Firebase Hosting:
+	- Instala Firebase CLI: `npm install -g firebase-tools`.
+	- Ejecuta `firebase login` y luego `firebase init` para configurar el hosting.
+	- Sube la aplicación con `firebase deploy`.
+3. Alternativamente, puedes desplegar el contenido de `dist/` en cualquier servidor web estático.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Guía de Usuario
 
-```bash
-ng generate --help
-```
+### Para usuarios finales
+1. **Registro e inicio de sesión:**
+	- Accede a la página principal y regístrate con tu correo y contraseña.
+	- Inicia sesión para acceder a tus proyectos y citas.
+2. **Explorar proyectos:**
+	- Visualiza los proyectos disponibles y sus detalles.
+3. **Solicitar citas:**
+	- Ve a la sección de consultoría y solicita una cita con un programador.
+	- Recibe notificaciones sobre el estado de tu cita.
+4. **Editar perfil:**
+	- Accede a tu perfil para actualizar tu información personal.
 
-## Building
+### Para administradores
+1. **Gestión de usuarios:**
+	- Accede al panel de administración para ver, editar o eliminar usuarios.
+	- Asigna roles (usuario, programador, administrador).
+2. **Gestión de proyectos:**
+	- Crea, edita o elimina proyectos desde la sección de administración.
+3. **Gestión de citas:**
+	- Visualiza todas las citas agendadas, confirma, edita o cancela según sea necesario.
+4. **Notificaciones y comunicación:**
+	- Envía mensajes o notificaciones a usuarios y programadores.
 
-To build the project run:
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
