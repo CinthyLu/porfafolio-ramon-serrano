@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { collection, addDoc, setDoc, doc } from "firebase/firestore"; 
+import { RouterLink, Router } from '@angular/router';
+import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { collection, setDoc, doc } from "firebase/firestore"; 
 import { db } from '../../../../main';
 import { Role } from '../../../models/role.enum';
 
@@ -20,24 +20,34 @@ email: string = '';
 password: string = '';
 password1: string = '';
 
+  constructor(private router: Router) {}
+
  async register() {
     console.log("Registering user:", this.fullName, this.email);
     try {
-  
       if (this.password !== this.password1) {
-        console.error("Passwor Incorrect");
+        console.error("Password Incorrect");
+        return;
       }
 
-      const docRef = await setDoc(doc(db, "users", this.email), {
-    fullName: this.fullName,
-    email: this.email,
-    password: this.password,
-    role: Role.User,
-  });
-  console.log("Document written with ID: ", docRef);
-} catch (e) {
-  console.error("Error adding document: ", e);
-}
+      const auth = getAuth();
+      // 1. Crear usuario en Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password);
+
+      // 2. Guardar perfil en Firestore
+      await setDoc(doc(db, "users", this.email), {
+        fullName: this.fullName,
+        email: this.email,
+        role: Role.User,
+      });
+
+      // 3. Redirigir a la página de perfil del usuario
+      await this.router.navigate(['/portfolio'], { queryParams: { dev: this.email } });
+      console.log("Usuario registrado y autenticado:", userCredential.user);
+
+    } catch (e) {
+      console.error("Error en registro:", e);
+    }
   }
 
    loginWithGoogle() {
