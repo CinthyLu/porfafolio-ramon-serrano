@@ -3,9 +3,12 @@ import { FormsModule, NgModel } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { collection, setDoc, doc } from "firebase/firestore"; 
+import { getDocs } from "firebase/firestore"; 
+import { query, where } from "firebase/firestore";
+
 import { db } from '../../../../main';
 import { Role } from '../../../models/role.enum';
-
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -20,7 +23,7 @@ email: string = '';
 password: string = '';
 password1: string = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
  async register() {
     console.log("Registering user:", this.fullName, this.email);
@@ -83,6 +86,8 @@ password1: string = '';
     });
    
   }
+
+
   }
 
 

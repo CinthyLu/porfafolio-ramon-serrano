@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NgFor, NgIf, DatePipe } from '@angular/common';
+import { NgFor, NgIf, DatePipe, CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AppointmentService } from '../../../services/appointment.service';
 import { AuthService } from '../../../services/auth.service';
@@ -10,9 +10,9 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-appointments',
   standalone: true,
-  imports: [NgFor, NgIf, RouterLink, DatePipe],
+  imports: [NgFor, NgIf, RouterLink, DatePipe, CommonModule],
   templateUrl: './appointments.html',
-  styleUrl: '../../consulting/consulting.scss',
+  styleUrl: './appointments.scss',
 })
 export class Appointments implements OnInit, OnDestroy {
   appointments: Appointment[] = [];
@@ -21,9 +21,10 @@ export class Appointments implements OnInit, OnDestroy {
   constructor(private apptService: AppointmentService, private auth: AuthService, private comm: CommunicationService) {}
 
   async ngOnInit() {
-    const pid = this.auth.currentUser?.id;
-    if (pid) {
-      this.appointments = await this.apptService.listByProgrammer(pid);
+    const email = this.auth.currentUser?.email;
+    if (email) {
+      this.appointments = await this.apptService.listByProgrammer(email);
+      console.log('[appointments] Citas cargadas:', this.appointments);
     }
 
     this.sub = this.comm.message$.subscribe(async (m: any) => {

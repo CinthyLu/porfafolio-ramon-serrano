@@ -1,32 +1,55 @@
-<div class="appointments-container panel-programmer">
-  <h2>Solicitudes de Asesoría</h2>
+<div class="appointments-wrapper">
 
-  <table>
-    <thead>
-      <tr>
-        <th>Solicitante</th>
-        <th>Fecha y Hora</th>
-        <th>Comentario</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let a of appointments">
-        <td>{{a.userId || 'Anonimo'}}</td>
-        <td>{{a.datetime | date:'short'}}</td>
-        <td>{{a.comment}}</td>
-        <td>{{a.status}}</td>
-        <td>
-          <button class="btn btn-sm" *ngIf="a.status === 'pending'" (click)="respond(a.id, true)">Aprobar</button>
-          <button class="btn btn-sm" *ngIf="a.status === 'pending'" (click)="respond(a.id, false)">Rechazar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="appointments-card">
 
-  <div class="nav-buttons">
-    <button class="btn btn-secondary" routerLink="/">Volver</button>
+    <h2 class="title">Solicitudes de Asesoría</h2>
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Solicitante</th>
+          <th>Fecha y Hora</th>
+          <th>Comentario</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let a of appointments">
+          <td class="email-cell">{{ a.userEmail || 'Anónimo' }}</td>
+
+          <td>{{ a.datetime | date : 'short' }}</td>
+
+          <td class="comment">{{ a.comment || '—' }}</td>
+
+          <td>
+            <span class="status"
+                  [ngClass]="{
+                    'pending': a.status === 'pending',
+                    'approved': a.status === 'approved',
+                    'rejected': a.status === 'rejected'
+                  }">
+              {{ a.status | titlecase }}
+            </span>
+          </td>
+
+          <td class="actions">
+            <button *ngIf="a.status === 'pending'" class="btn-approve" (click)="respond(a.id, true)">
+              Aprobar
+            </button>
+
+            <button *ngIf="a.status === 'pending'" class="btn-reject" (click)="respond(a.id, false)">
+              Rechazar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <button class="btn-secondary" routerLink="/">Volver</button>
+    </div>
+
   </div>
 </div>
-

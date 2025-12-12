@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { getDoc } from 'firebase/firestore';
 import { db } from '../../main';
 import { User } from '../models/user.model';
-import { Role } from '../models/role.enum';
+import { collection, setDoc, doc } from "firebase/firestore"; 
+import { getDocs } from "firebase/firestore"; 
+import { query, where } from "firebase/firestore";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -41,6 +43,7 @@ export class AuthService {
         this.readySubject.next(true);
       }
     });
+    
   }
 
   /** Cargar perfil por email desde Firestore */
@@ -66,9 +69,36 @@ export class AuthService {
   get currentUser(): User | null {
     return this.userSubject.value;
   }
+  set currentUser(user: User | null) {
+    this.userSubject.next(user);     // ✔ correcta forma
+  }
+
+  async getUser(){
+    
+      const q = query(
+        collection(db, "users"),
+        where("email", "==", this.currentUser?.email)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        console.log("No se encontró ningún usuario con ese email.");
+        return;
+      }
+
+      let data: any = null;
+      querySnapshot.forEach((doc) => {
+        console.log("DOC ENCONTRADO:", doc.id, doc.data());
+        data = doc.data();
+      });
+
+      return data;
+  }
+
 
   /** Verificar rol */
-  hasRole(role: Role | Role[]): boolean {
+  hasRole(role: string): boolean {
     const user = this.currentUser;
     if (!user) return false;
 

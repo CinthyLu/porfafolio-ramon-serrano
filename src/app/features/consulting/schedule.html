@@ -1,35 +1,60 @@
-<div *ngIf="loading">
-  Cargando autenticación...
+<!-- Loading -->
+<div *ngIf="loading" class="loading-wrapper">
+  <div class="spinner"></div>
+  <p>Cargando autenticación...</p>
 </div>
 
-<div *ngIf="!loading">
-  <!-- tu formulario aquí -->
+<!-- Contenido -->
+<div *ngIf="!loading" class="schedule-wrapper">
 
-<div class="schedule-container panel-user">
-  <h2>Agendar Asesoría</h2>
+  <div class="schedule-card">
 
-  <form (ngSubmit)="submit()">
-    <label>Seleccionar Programador</label>
-    <select [(ngModel)]="selectedProgrammer" name="programmer">
-      <option value="">-- Seleccionar --</option>
-      <option *ngFor="let p of programmers" [value]="p.id">{{p.fullName}} - {{ getLabel(p) }}</option>
-    </select>
+    <h2 class="title">Agendar Asesoría</h2>
 
-    <label>Fecha</label>
-    <input type="date" [(ngModel)]="date" name="date" />
+    <form (ngSubmit)="submit()">
 
-    <label>Hora</label>
-    <input type="time" [(ngModel)]="time" name="time" />
+      <!-- Programador -->
+      <div class="form-group">
+        <label>Seleccionar Programador</label>
+        <select [(ngModel)]="selectedProgrammer" name="programmer" required>
+          <option value="">-- Seleccionar --</option>
+          <option *ngFor="let p of programmers" [value]="p.id">
+            {{p.fullName}} — {{ getLabel(p) }}
+          </option>
+        </select>
+      </div>
 
-    <label>Comentario (opcional)</label>
-    <textarea [(ngModel)]="comment" name="comment"></textarea>
+      <!-- Fecha -->
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" [(ngModel)]="date" name="date" required />
+      </div>
 
-    <div class="form-actions">
-      <button class="btn btn-primary" type="submit" [disabled]="submitting">Enviar Solicitud</button>
+      <!-- Hora -->
+      <div class="form-group">
+        <label>Hora</label>
+        <input type="time" [(ngModel)]="time" name="time" required />
+      </div>
+
+      <!-- Comentario -->
+      <div class="form-group">
+        <label>Comentario (opcional)</label>
+        <textarea [(ngModel)]="comment" name="comment" placeholder="Escribe un comentario opcional..."></textarea>
+      </div>
+
+      <!-- Botón -->
+      <div class="form-actions">
+        <button class="btn-primary" type="submit" [disabled]="submitting">
+          {{ submitting ? 'Enviando...' : 'Enviar Solicitud' }}
+        </button>
+      </div>
+
+    </form>
+
+    <div class="nav-actions">
+      <button class="btn-secondary" routerLink="/">Volver</button>
     </div>
-  </form>
 
-  <div class="nav-buttons">
-    <button class="btn btn-secondary" routerLink="/">Volver</button>
   </div>
+
 </div>

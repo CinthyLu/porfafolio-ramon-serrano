@@ -1,0 +1,137 @@
+/* ---------- WRAPPER ---------- */
+.appointments-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* ---------- CARD ---------- */
+.appointments-card {
+  width: 100%;
+  max-width: 950px;
+  background: #ffffffcc;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+/* ---------- TITLE ---------- */
+.title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* ---------- TABLE ---------- */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.styled-table thead {
+  background: #2e3a59;
+  color: #fff;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.styled-table tbody tr {
+  transition: background 0.2s;
+}
+
+.styled-table tbody tr:hover {
+  background: #f4f6fa;
+}
+
+.email-cell {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.comment {
+  color: #444;
+  font-size: 0.9rem;
+}
+
+/* ---------- STATUS BADGES ---------- */
+.status {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status.approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* ---------- ACTION BUTTONS ---------- */
+.actions button {
+  margin-right: 6px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-approve {
+  background: #28a745;
+  border: none;
+  color: white;
+}
+
+.btn-approve:hover {
+  background: #218838;
+}
+
+.btn-reject {
+  background: #dc3545;
+  border: none;
+  color: white;
+}
+
+.btn-reject:hover {
+  background: #c82333;
+}
+
+/* ---------- SECONDARY BUTTON ---------- */
+.btn-secondary {
+  background: #6c757d;
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+/* ---------- FOOTER ---------- */
+.footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}

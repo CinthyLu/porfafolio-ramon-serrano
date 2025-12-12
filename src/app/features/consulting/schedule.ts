@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgFor } from '@angular/common';
+import { CommonModule, NgFor } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
@@ -9,10 +9,12 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-schedule',
-  imports: [FormsModule, NgFor, RouterLink],
+  standalone: true,
+  imports: [FormsModule, RouterLink, CommonModule],
   templateUrl: './schedule.html',
-  styleUrls: ['./consulting.scss'],
+  styleUrl: './schedule.scss',   // ✔ SOLO styleUrl
 })
+
 export class Schedule implements OnInit {
   programmers: User[] = [];
   selectedProgrammer = '';
@@ -64,6 +66,7 @@ export class Schedule implements OnInit {
 
       await this.appointmentService.createAppointment({
         programmerId: this.selectedProgrammer,
+        userEmail: this.user!.email,
         userId: this.user!.id, // <-- AHORA SÍ EXISTE
         datetime,
         comment: this.comment,

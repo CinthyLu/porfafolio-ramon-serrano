@@ -20,8 +20,8 @@ export class AppointmentService {
     return appointment;
   }
 
-  async listByProgrammer(programmerId: string) {
-    const q = query(this.col, where('programmerId', '==', programmerId));
+  async listByProgrammer(email: string) {
+    const q = query(this.col, where('programmerId', '==', email));
     const snaps = await getDocs(q);
     const items: Appointment[] = [];
     snaps.forEach(s => items.push({ ...(s.data() as Appointment), id: s.id }));
