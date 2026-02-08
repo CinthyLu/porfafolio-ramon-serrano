@@ -46,7 +46,7 @@ async updateUserByEmail(email: string, data: Partial<any>) {
     updatedAt: new Date().toISOString(),
   });
 }
-  
+
   async listProgrammers(): Promise<User[]> {
     const q = query(this.usersCollection, where('role', '==', Role.Programmer));
     const snaps = await getDocs(q);
@@ -65,7 +65,7 @@ async updateUserByEmail(email: string, data: Partial<any>) {
       return { ...data, id: d.id };
     });
   }
-// Actualiza  el rol 
+// Actualiza  el rol
   async updateUserRole(emailDocId: string, role: Role): Promise<void> {
     const ref = doc(db, 'users', emailDocId);
     await updateDoc(ref, {
@@ -73,4 +73,22 @@ async updateUserByEmail(email: string, data: Partial<any>) {
       updatedAt: new Date().toISOString(),
     });
   }
+
+  async getUserByEmail(email: string): Promise<User | null> {
+    const ref = doc(db, 'users', email);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return null;
+    const data = snap.data() as User;
+    data.id = snap.id;
+    return data;
+  }
+  async updateMyProfile(email: string, data: any): Promise<void> {
+    const ref = doc(db, 'users', email);
+        const { role, ...safe } = data;
+
+    await updateDoc(ref, {
+      ...safe,
+      updatedAt: new Date().toISOString(),
+    });
+}
 }

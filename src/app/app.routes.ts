@@ -13,10 +13,12 @@ import { Appointments } from './features/management/appointments/appointments';
 import { Role } from './models/role.enum';
 import { RoleGuard } from './guards/role.guard';
 import { AuthGuard } from './guards/auth.guard';
+import { Profile } from './features/profile/profile';
 
 export const routes: Routes = [
   { path: '', component: Home },
   { path: 'home', component: Home },
+  { path: 'profile', component: Profile, canActivate: [AuthGuard] },
 
   // PUBLIC
   { path: 'projects', component: Projects },
@@ -46,14 +48,13 @@ export const routes: Routes = [
     canActivate: [RoleGuard],
     data: { roles: Role.Admin }
   },
-{
-  path: 'admin/portfolio',
-  component: Portfolio,
-  canActivate: [RoleGuard],
-  data: { roles: Role.Admin }
-},
-{ path: 'portfolio/:id', component: Upmedia },
-
+  {
+    path: 'admin/portfolio',
+    component: Portfolio,
+    canActivate: [RoleGuard],
+    data: { roles: Role.Admin }
+  },
+  { path: 'portfolio/:id', component: Upmedia },
 
   // PROGRAMADOR
   {

@@ -1,5 +1,11 @@
 <!-- Navigation Bar -->
-<nav class="navbar" [ngClass]="{ 'nav-admin': isAdmin(), 'nav-programmer': isProgrammer(), 'nav-user': isUser() }">
+<nav class="navbar"
+  [ngClass]="{
+    'nav-admin': isAdmin(),
+     'nav-programmer': isProgrammer(),
+     'nav-user': isUser() || !isLoggedIn()
+}">
+
   <div class="nav-container">
     <h1>DevFusion</h1>
     <ul class="nav-links">
@@ -7,12 +13,31 @@
       <!-- <li><a routerLink="/portfolio" routerLinkActive="active">Portafolios</a></li> -->
       <li><a routerLink="/projects" routerLinkActive="active">Proyectos</a></li>
       <li><a routerLink="/consulting" routerLinkActive="active">Consultoría</a></li>
+      <!-- SOLO logueados -->
+      <li *ngIf="isLoggedIn()">
+        <a routerLink="/profile" routerLinkActive="active">Mi Perfil</a>
+      </li>
 
-      <li *ngIf="isAdmin()"><a routerLink="/users" routerLinkActive="active">Admin: Usuarios</a></li>
-      <li *ngIf="isProgrammer()"><a routerLink="/appointments" routerLinkActive="active">Mis Asesorías</a></li>
+      <!-- SOLO admin -->
+      <li *ngIf="isAdmin()">
+        <a routerLink="/users" routerLinkActive="active">Admin: Usuarios</a>
+      </li>
 
-      <li *ngIf="!fullName"><a routerLink="/login" routerLinkActive="active">Iniciar Sesión</a></li>
-      <li *ngIf="fullName" class="profile-name">Hola, {{fullName}} <button class="link-btn" (click)="logout()">Cerrar</button></li>
+      <!-- SOLO programmer -->
+      <li *ngIf="isProgrammer()">
+        <a routerLink="/appointments" routerLinkActive="active">Mis Asesorías</a>
+      </li>
+
+      <!-- SOLO NO logueados -->
+      <li *ngIf="!isLoggedIn()">
+        <a routerLink="/login" routerLinkActive="active">Iniciar Sesión</a>
+      </li>
+
+      <!-- SOLO logueados -->
+      <li *ngIf="isLoggedIn()" class="profile-name">
+        Hola, {{ displayName() }}
+        <button class="link-btn" type="button" (click)="logout()">Cerrar</button>
+      </li>
     </ul>
   </div>
 </nav>

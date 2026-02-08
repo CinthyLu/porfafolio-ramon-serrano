@@ -20,7 +20,9 @@ service cloud.firestore {
     match /users/{email} {
       allow read: if signedIn();
       allow create: if signedIn() && myEmail() == email;
-      allow update: if isAdmin() || (signedIn() && myEmail() == email);
+      allow update: if isAdmin()
+          || (signedIn() && myEmail() == email
+          && request.resource.data.role == resource.data.role);
       allow delete: if isAdmin();
     }
 

@@ -10,8 +10,9 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './header.scss',
 })
 export class Header implements OnInit {
-  role: string | null = null;
-  fullName: string | null = null;
+    role: string | null = null;
+    fullName: string | null = null;
+    email: string | null = null;
 
   constructor(private auth: AuthService, private router: Router) {}
 
@@ -19,12 +20,20 @@ export class Header implements OnInit {
     this.auth.user$.subscribe(u => {
       this.role = u?.role || null;
       this.fullName = u?.fullName || null;
+      this.email = u?.email || null;
     });
+  }
+  isLoggedIn() {
+    return !!this.email;
   }
 
   isAdmin() { return this.role === 'admin'; }
   isProgrammer() { return this.role === 'programmer'; }
   isUser() { return this.role === 'user' || this.role === null; }
+
+  displayName() {
+    return this.fullName || this.email || '';
+  }
 
   async logout() {
     await this.auth.signOut();

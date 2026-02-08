@@ -55,13 +55,13 @@ export class Login {
           fullName: result.user.displayName || 'Usuario',
           email,
           photoUrl: result.user.photoURL || '',
-          role: 'user', // guarda como string
+          role: 'user', 
           createdAt: new Date().toISOString(),
           contacts: {},
         });
       }
 
-      // 2) Leer perfil real desde Firestore (ya no depende de currentUser)
+      // 2) Leer perfil real desde Firestore
       const usuario = await this.authService.getUserByEmail(email);
 
       // 3) Determinar rol con fallback seguro

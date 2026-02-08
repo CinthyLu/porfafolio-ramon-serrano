@@ -1,0 +1,58 @@
+<div class="profile-container panel">
+  <h2>Mi Perfil</h2>
+
+  <div *ngIf="loading">Cargando...</div>
+
+  <div *ngIf="!loading">
+    <div class="row">
+      <div class="photo" *ngIf="photoUrl">
+        <img [src]="photoUrl" alt="Foto de perfil" />
+      </div>
+
+      <div class="info">
+        <div class="field">
+          <label>Email</label>
+          <input [value]="email" readonly />
+        </div>
+
+        <div class="field">
+          <label>Nombre</label>
+          <input [(ngModel)]="fullName" name="fullName" />
+        </div>
+
+        <div class="field">
+          <label>Especialidad</label>
+          <input [(ngModel)]="specialty" name="specialty" />
+        </div>
+
+        <div class="field">
+          <label>Bio</label>
+          <textarea [(ngModel)]="bio" name="bio"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <h3>Perfil de empresa (opcional)</h3>
+
+    <div class="field">
+      <label>Empresa</label>
+      <input [(ngModel)]="companyName" name="companyName" />
+    </div>
+
+    <div class="field">
+      <label>Cargo</label>
+      <input [(ngModel)]="companyRole" name="companyRole" />
+    </div>
+
+    <div class="field">
+      <label>Descripción</label>
+      <textarea [(ngModel)]="companyDescription" name="companyDescription"></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" (click)="save()" [disabled]="saving">
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>

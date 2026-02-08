@@ -1,4 +1,5 @@
-/* You can add global styles to this file, and also import other style files */
+@use "sass:color";
+
 
 // Variables de colores
 $primary-color: #3498db;
@@ -101,7 +102,8 @@ body {
     color: white;
 
     &:hover {
-      background-color: darken($success-color, 10%);
+background-color: color.scale($success-color, $lightness: -23.9436619718%);
+
     }
   }
 
