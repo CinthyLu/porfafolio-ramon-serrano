@@ -2,7 +2,17 @@
 <div class="users-container panel-admin">
   <h2>Users Management</h2>
   <p>Manage and view all users</p>
-  
+
+  <div class="filters">
+    <label>Filtrar por rol</label>
+    <select name="filterRole" [(ngModel)]="filterRole" (change)="applyFilter()">
+      <option value="all">Todos</option>
+      <option [value]="Role.Admin">Admin</option>
+      <option [value]="Role.Programmer">Programmer</option>
+      <option [value]="Role.User">User</option>
+    </select>
+  </div>
+
   <div class="users-table">
     <table>
       <thead>
@@ -10,30 +20,60 @@
           <th>Name</th>
           <th>Email</th>
           <th>Role</th>
+          <th>Change Role</th>
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody> 
-        <tr *ngFor="let p of programmers">
-          <td>{{p.fullName}}</td>
-          <td>{{p.email}}</td>
-          <td>{{p.role}}</td>
+
+      <tbody>
+        <tr *ngFor="let u of filteredUsers" (click)="selectUser(u)" [class.selected]="isSelected(u)">
+          <td>{{ u.fullName }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.role }}</td>
+
           <td>
-            <button class="btn btn-sm" (click)="deleteUser(p.id)">Eliminar</button>
+            <span *ngIf="!isAdmin || !isSelected(u)">{{ u.role }}</span>
+
+            <select *ngIf="isAdmin && isSelected(u)" [ngModel]="u.role" (ngModelChange)="changeRole(u, $event)"
+              (click)="$event.stopPropagation()">
+              <option [value]="Role.Admin">admin</option>
+              <option [value]="Role.Programmer">programmer</option>
+              <option [value]="Role.User">user</option>
+            </select>
           </td>
+
+          <td>
+            <div *ngIf="isSelected(u)">
+              <button class="btn btn-sm" type="button" (click)="startEdit(u); $event.stopPropagation()">
+                Editar perfil
+              </button>
+
+              <button *ngIf="isAdmin" class="btn btn-sm" type="button"
+                (click)="deleteUser(u.email); $event.stopPropagation()">
+                Eliminar
+              </button>
+            </div>
+
+            <div *ngIf="!isSelected(u)">-</div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredUsers.length === 0">
+          <td colspan="5">No hay usuarios para este filtro.</td>
         </tr>
       </tbody>
     </table>
   </div>
 
   <div class="create-programmer">
-    <h3>Crear Programador</h3>
-    <form (ngSubmit)="createProgrammer()">
+    <h3>{{ editingId ? 'Editar' : 'Crear Programador' }}</h3>
+
+    <form (ngSubmit)="saveProgrammer()">
       <label>Nombre</label>
-      <input name="fullName" [(ngModel)]="fullName" />
+      <input name="fullName" [(ngModel)]="fullName" required />
 
       <label>Email</label>
-      <input name="email" [(ngModel)]="email" />
+      <input name="email" [(ngModel)]="email" [readonly]="!!editingId" required />
 
       <label>Especialidad</label>
       <input name="specialty" [(ngModel)]="specialty" />
@@ -42,11 +82,17 @@
       <textarea name="bio" [(ngModel)]="bio"></textarea>
 
       <div class="form-actions">
-        <button class="btn btn-primary" type="submit" [disabled]="creating">Crear</button>
+        <button class="btn btn-primary" type="submit" [disabled]="creating">
+          {{ editingId ? 'Guardar cambios' : 'Crear' }}
+        </button>
+
+        <button *ngIf="editingId" class="btn btn-secondary" type="button" (click)="cancelEdit()">
+          Cancelar
+        </button>
       </div>
     </form>
   </div>
-  
+
   <div class="nav-buttons">
     <button class="btn btn-secondary" routerLink="/">Back to Home</button>
   </div>

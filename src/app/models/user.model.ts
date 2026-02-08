@@ -13,8 +13,14 @@ export interface User {
   id?: string;
   email: string;
   fullName: string;
+  
   role: Role;
+  specialty?: string;
+  bio?: string;
+
+  
   photoUrl?: string;
   contacts?: ContactLinks;
   createdAt?: string;
+  updatedAt?: string;
 }

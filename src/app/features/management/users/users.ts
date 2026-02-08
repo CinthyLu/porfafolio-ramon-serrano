@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { User } from '../../../models/user.model';
 import { Role } from '../../../models/role.enum';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-users',
@@ -13,62 +14,156 @@ import { Role } from '../../../models/role.enum';
   styleUrl: './users.scss',
 })
 export class Users implements OnInit {
-  programmers: User[] = [];
+  Role = Role;
 
-  // Create form
+  users: User[] = [];
+  selectedEmail: string | null = null;
+  filteredUsers: User[] = [];
+
+  filterRole: 'all' | Role = 'all';
+
+  creating = false;
+
+  // Edición de perfil programador
+  editingId: string | null = null;
   fullName = '';
   email = '';
   specialty = '';
   bio = '';
 
-  creating = false;
+  isAdmin = false;
 
-  constructor(private userService: UserService) {}
+   constructor(
+    private userService: UserService,
+    private authService: AuthService
+  ) {}
 
-  async ngOnInit() {
-    await this.loadProgrammers();
+selectUser(u: User) {
+  this.selectedEmail = u.email;
+}
+
+isSelected(u: User): boolean {
+  return this.selectedEmail === u.email;
+}
+
+clearSelection() {
+  this.selectedEmail = null;
+}
+    async ngOnInit() {
+    this.isAdmin = this.authService.currentUser?.role === Role.Admin;
+    await this.loadUsers();
   }
 
-  async loadProgrammers() {
+  async loadUsers() {
     try {
-      this.programmers = await this.userService.listProgrammers();
+      this.users = await this.userService.listUsers();
+      this.applyFilter();
     } catch (e) {
-      console.error('Error loading programmers', e);
+      console.error('Error loading users', e);
+      alert('No se pudieron cargar los usuarios.');
     }
   }
 
-  async createProgrammer() {
-    if (!this.email || !this.fullName) return;
-    this.creating = true;
+  applyFilter() {
+    if (this.filterRole === 'all') {
+      this.filteredUsers = [...this.users];
+      return;
+    }
+    this.filteredUsers = this.users.filter(u => u.role === this.filterRole);
+  }
+
+  async changeRole(u: User, newRoleValue: string) {
+    if (!this.isAdmin) {
+      alert('Solo el administrador puede cambiar roles.');
+      return;
+
+      if (!this.isAdmin) return;
+    }
+    const newRole = newRoleValue as Role;
+    if (u.email === this.authService.currentUser?.email && newRole === Role.User) {
+      alert('No puedes quitarte el rol admin a ti misma.');
+      return;
+    }
+    const docId = u.email;
+
     try {
-      const user: User = {
-        email: this.email,
-        fullName: this.fullName,
-        role: Role.Programmer,
-        photoUrl: '',
-        contacts: {},
-      };
-      await this.userService.createProgrammer(user);
-      this.fullName = '';
-      this.email = '';
-      this.specialty = '';
-      this.bio = '';
-      await this.loadProgrammers();
+      await this.userService.updateUserRole(docId, newRole);
+      u.role = newRole;
+      this.applyFilter();
     } catch (e) {
-      console.error('Error creating programmer', e);
-    } finally {
-      this.creating = false;
+      console.error('Error updating role', e);
+      alert('No se pudo actualizar el rol. Revisa permisos/reglas.');
     }
   }
 
-  async deleteUser(id: string | undefined) {
-    if (!id) return;
+  async deleteUser(email: string | undefined) {
+    if (!email) return;
     if (!confirm('¿Eliminar este usuario?')) return;
+
     try {
-      await this.userService.deleteUser(id);
-      await this.loadProgrammers();
+      await this.userService.deleteUser(email);
+      await this.loadUsers();
     } catch (e) {
       console.error('Error deleting user', e);
+      alert('No se pudo eliminar. Revisa consola/permisos.');
+    }
+  }
+
+  
+  startEdit(u: any) {
+    this.editingId = u.email || null;
+    this.fullName = u.fullName || '';
+    this.email = u.email || '';
+    this.specialty = u.specialty || '';
+    this.bio = u.bio || '';
+  }
+
+  cancelEdit() {
+    this.editingId = null;
+    this.fullName = '';
+    this.email = '';
+    this.specialty = '';
+    this.bio = '';
+  }
+
+  async saveProgrammer() {
+    if (this.creating) return;
+
+    if (!this.fullName.trim() || !this.email.trim()) {
+      alert('Nombre y email son obligatorios.');
+      return;
+    }
+
+    try {
+      this.creating = true;
+
+      if (this.editingId) {
+        await this.userService.updateUser(this.editingId, {
+          fullName: this.fullName.trim(),
+          specialty: this.specialty.trim(),
+          bio: this.bio.trim(),
+        });
+
+        this.cancelEdit();
+        await this.loadUsers();
+        return;
+      }
+
+      await this.userService.createProgrammer({
+        fullName: this.fullName.trim(),
+        email: this.email.trim(),
+        specialty: this.specialty.trim(),
+        bio: this.bio.trim(),
+        role: Role.Programmer,
+      });
+
+      this.cancelEdit();
+      await this.loadUsers();
+    } catch (e) {
+      console.error('Error creating/updating programmer', e);
+      alert('No se pudo guardar. Revisa consola/permisos.');
+    } finally {
+      this.creating = false;
     }
   }
 }

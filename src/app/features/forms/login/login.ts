@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { NgIf, NgClass } from '@angular/common';
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+
+import { db } from '../../../../main';
 import { AuthService } from '../../../services/auth.service';
 import { Role } from '../../../models/role.enum';
 
@@ -12,12 +16,7 @@ import { Role } from '../../../models/role.enum';
   styleUrl: './login.scss',
 })
 export class Login {
-
-  notification = {
-    visible: false,
-    message: '',
-    type: '' // success | error | info
-  };
+  notification = { visible: false, message: '', type: '' };
   private notificationTimeout: any;
 
   constructor(
@@ -31,93 +30,65 @@ export class Login {
     this.notification.type = type;
     this.notification.visible = true;
     clearTimeout(this.notificationTimeout);
-    this.notificationTimeout = setTimeout(() => {
-      this.notification.visible = false;
-    }, duration);
+    this.notificationTimeout = setTimeout(() => (this.notification.visible = false), duration);
   }
 
   async loginWithGoogle() {
-    console.log('[login] loginWithGoogle() iniciar');
     const provider = new GoogleAuthProvider();
     const auth = getAuth();
 
     try {
       const result = await signInWithPopup(auth, provider);
-      console.log('[login] signInWithPopup -> success, result:', result);
 
-
-      this.authService.currentUser = {
-         id: result.user.uid,
-         email: result.user.email || '',
-         fullName: result.user.displayName || 'Usuario',
-         role: Role.User,
-         photoUrl: result.user.photoURL || '',
-         contacts: undefined,
-         createdAt: new Date().toISOString(),
-       }
-
-       
-      const usuario:any =await this.authService.getUser() // de firestore
-      
-      console.log('------:', usuario.role);
-
-      let Rol: Role;
-
-      if(usuario.role == 'Admin'){
-        Rol = Role.Admin
-      }else if(usuario.role == 'Programmer'){
-        Rol = Role.Programmer
-      }else {
-        Rol = Role.User
+      const email = result.user.email || '';
+      if (!email) {
+        this.showNotification('Google no devolvió email', 'error');
+        return;
       }
 
-      this.authService.currentUser = {
-         id: result.user.uid,
-         email: result.user.email || '',
-         fullName: result.user.displayName || 'Usuario',
-         role: Rol,
-         photoUrl: result.user.photoURL || '',
-         contacts: undefined,
-         createdAt: new Date().toISOString(),
-       }
-      console.log('Usuario obtenido de Firestore:', this.authService.currentUser);
+            // 1) Asegurar documento en Firestore
+      const ref = doc(db, 'users', email);
+      const snap = await getDoc(ref);
 
-      
+      if (!snap.exists()) {
+        await setDoc(ref, {
+          fullName: result.user.displayName || 'Usuario',
+          email,
+          photoUrl: result.user.photoURL || '',
+          role: 'user', // guarda como string
+          createdAt: new Date().toISOString(),
+          contacts: {},
+        });
+      }
+
+      // 2) Leer perfil real desde Firestore (ya no depende de currentUser)
+      const usuario = await this.authService.getUserByEmail(email);
+
+      // 3) Determinar rol con fallback seguro
+      const rol = (usuario?.role as Role) || Role.User;
+
+      // 4) Set currentUser (sin explotar si usuario es null)
+      this.authService.currentUser = {
+        id: result.user.uid,
+        email,
+        fullName: usuario?.fullName || result.user.displayName || 'Usuario',
+        role: rol,
+        photoUrl: usuario?.photoUrl || result.user.photoURL || '',
+        contacts: usuario?.contacts || {},
+        createdAt: usuario?.createdAt || new Date().toISOString(),
+      };
+
       this.showNotification('Inicio de sesión exitoso', 'success');
 
-      // leer redirectTo y normalizar
-      const redirectToRaw = this.route.snapshot.queryParamMap.get('redirectTo') || '/';
+      const redirectToRaw = this.route.snapshot.queryParamMap.get('redirectTo') || '/home';
       const redirectTo = decodeURIComponent(redirectToRaw);
       const path = redirectTo.startsWith('/') ? redirectTo : '/' + redirectTo;
-      console.log('[login] redirectTo param =', redirectTo);
 
-      // ---> ESPERAMOS hasta que AuthService confirme que firebase+perfil están listos
-      console.log('[login] esperando authService.waitUntilReady()...');
-       // actualizar currentUser
 
-       
-      await this.authService.waitUntilReady();
-      console.log('[login] authService listo, currentUser =', this.authService.currentUser);
-
-      // ahora sí navegamos
-     await this.router.navigateByUrl(path);
-     console.log('[login] navegación completada a', path);
-
+      await this.router.navigateByUrl(path);
     } catch (error) {
-      console.error('[login] signInWithPopup error', error);
+      console.error('[login] Google sign-in error', error);
       this.showNotification('Ocurrió un error inesperado', 'error');
     }
-  }
-
-  desplegarExito(){
-    this.showNotification('Inicio de sesión exitoso', 'success');
-  }
-
-  desplegarError(){
-    this.showNotification('Ocurrió un error inesperado', 'error');
-  }
-
-  desplegarConfirmacion(){
-    this.showNotification('¿Estás seguro de cerrar sesión?', 'info', 4000);
   }
 }

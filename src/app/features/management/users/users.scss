@@ -5,4 +5,11 @@
 .create-programmer { margin-top: 20px; }
 .create-programmer input, .create-programmer textarea, .create-programmer select { width: 100%; padding: 8px; margin-bottom: 8px; border-radius: 4px; border: 1px solid #ddd; }
 .btn-sm { padding: 6px 8px; font-size: 13px; }
+.users-table tr {
+  cursor: pointer;
+}
+
+.users-table tr.selected {
+  outline: 2px solid rgba(255, 255, 255, 0.25);
+}
 

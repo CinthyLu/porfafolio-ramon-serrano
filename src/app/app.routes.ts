@@ -46,6 +46,14 @@ export const routes: Routes = [
     canActivate: [RoleGuard],
     data: { roles: Role.Admin }
   },
+{
+  path: 'admin/portfolio',
+  component: Portfolio,
+  canActivate: [RoleGuard],
+  data: { roles: Role.Admin }
+},
+{ path: 'portfolio/:id', component: Upmedia },
+
 
   // PROGRAMADOR
   {

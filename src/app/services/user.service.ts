@@ -4,6 +4,7 @@ import { db } from '../../main';
 import { User } from '../models/user.model';
 import { Role } from '../models/role.enum';
 
+
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private usersCollection = collection(db, 'users');
@@ -38,12 +39,38 @@ export class UserService {
     }
     return null;
   }
-
+async updateUserByEmail(email: string, data: Partial<any>) {
+  const ref = doc(db, 'users', email);
+  await updateDoc(ref, {
+    ...data,
+    updatedAt: new Date().toISOString(),
+  });
+}
+  
   async listProgrammers(): Promise<User[]> {
     const q = query(this.usersCollection, where('role', '==', Role.Programmer));
     const snaps = await getDocs(q);
     const items: User[] = [];
     snaps.forEach(s => items.push({ ...(s.data() as User), id: s.id }));
     return items;
+  }
+
+  //lista tdods los usuarios
+  async listUsers(): Promise<User[]> {
+    const ref = collection(db, 'users');
+    const snap = await getDocs(ref);
+
+    return snap.docs.map(d => {
+      const data = d.data() as User;
+      return { ...data, id: d.id };
+    });
+  }
+// Actualiza  el rol 
+  async updateUserRole(emailDocId: string, role: Role): Promise<void> {
+    const ref = doc(db, 'users', emailDocId);
+    await updateDoc(ref, {
+      role,
+      updatedAt: new Date().toISOString(),
+    });
   }
 }
