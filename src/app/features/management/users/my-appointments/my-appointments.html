@@ -1,30 +1,25 @@
 <div class="appointments-wrapper">
-
   <div class="appointments-card">
+    <h2 class="title">Mis Solicitudes de Asesoría</h2>
 
-    <h2 class="title">Solicitudes de Asesoría</h2>
-
-    <!-- LOADING -->
     <div *ngIf="loading" class="loading-wrapper">
       <div class="spinner"></div>
       <p>Cargando solicitudes...</p>
     </div>
 
-    <!-- TABLA CON DATOS -->
     <table class="styled-table" *ngIf="!loading && appointments.length > 0">
       <thead>
         <tr>
-          <th>Solicitante</th>
+          <th>Programador</th>
           <th>Fecha y Hora</th>
           <th>Comentario</th>
           <th>Estado</th>
-          <th>Acciones</th>
         </tr>
       </thead>
 
       <tbody>
         <tr *ngFor="let a of appointments">
-          <td class="email-cell">{{ a.userEmail || 'Anónimo' }}</td>
+          <td class="email-cell">{{ a.programmerId || '—' }}</td>
 
           <td>{{ a.datetime | date : 'short' }}</td>
 
@@ -42,36 +37,16 @@
               {{ a.status | titlecase }}
             </span>
           </td>
-<td>{{ a.responseMessage || '—' }}</td>
-          <td class="actions">
-            <button
-              *ngIf="a.status === 'pending'"
-              class="btn-approve"
-              (click)="respond(a.id, true)"
-            >
-              Aprobar
-            </button>
-
-            <button
-              *ngIf="a.status === 'pending'"
-              class="btn-reject"
-              (click)="respond(a.id, false)"
-            >
-              Rechazar
-            </button>
-          </td>
         </tr>
       </tbody>
     </table>
 
-    <!-- EMPTY STATE -->
     <div *ngIf="!loading && appointments.length === 0" class="empty-state">
-      No tienes solicitudes por ahora.
+      No has realizado solicitudes todavía.
     </div>
 
     <div class="footer">
       <button class="btn-secondary" routerLink="/">Volver</button>
     </div>
-
   </div>
 </div>

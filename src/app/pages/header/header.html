@@ -1,41 +1,68 @@
 <!-- Navigation Bar -->
-<nav class="navbar"
+<nav
+  class="navbar"
   [ngClass]="{
     'nav-admin': isAdmin(),
-     'nav-programmer': isProgrammer(),
-     'nav-user': isUser() || !isLoggedIn()
-}">
-
+    'nav-programmer': isProgrammer(),
+    'nav-user': isUser() || !isLoggedIn()
+  }"
+>
   <div class="nav-container">
     <h1>DevFusion</h1>
+
     <ul class="nav-links">
-      <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Inicio</a></li>
-      <!-- <li><a routerLink="/portfolio" routerLinkActive="active">Portafolios</a></li> -->
-      <li><a routerLink="/projects" routerLinkActive="active">Proyectos</a></li>
-      <li><a routerLink="/consulting" routerLinkActive="active">Consultoría</a></li>
-      <!-- SOLO logueados -->
-      <li *ngIf="isLoggedIn()">
-        <a routerLink="/profile" routerLinkActive="active">Mi Perfil</a>
+      <li>
+        <a
+          class="nav-link"
+          routerLink="/"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          >Inicio</a
+        >
       </li>
 
-      <!-- SOLO admin -->
-      <li *ngIf="isAdmin()">
-        <a routerLink="/users" routerLinkActive="active">Admin: Usuarios</a>
+      <li>
+        <a class="nav-link" routerLink="/projects" routerLinkActive="active">Proyectos</a>
       </li>
 
-      <!-- SOLO programmer -->
+      <li *ngIf="!isLoggedIn() || isUser()">
+  <a class="nav-link" routerLink="/consulting" routerLinkActive="active">Consultoría</a>
+</li>
+      <!-- USER -->
+      <li *ngIf="isUser()">
+        <a class="nav-link" routerLink="/my-appointments" routerLinkActive="active">Mis Solicitudes</a>
+      </li>
+
+      <!-- PROGRAMMER -->
       <li *ngIf="isProgrammer()">
-        <a routerLink="/appointments" routerLinkActive="active">Mis Asesorías</a>
+        <a class="nav-link" routerLink="/appointments" routerLinkActive="active">Mis Asesorías</a>
       </li>
 
-      <!-- SOLO NO logueados -->
+      <!-- ADMIN -->
+      <li *ngIf="isAdmin()">
+        <a class="nav-link" routerLink="/users" routerLinkActive="active">Admin: Usuarios</a>
+      </li>
+
+      <!-- PERFIL (icono) -->
+      <li *ngIf="isLoggedIn()">
+        <a
+          class="nav-link user-icon"
+          routerLink="/profile"
+          routerLinkActive="active"
+          aria-label="Mi perfil"
+          title="Mi perfil"
+        >
+          <span class="icon-circle">{{ displayName()?.charAt(0) || 'U' }}</span>
+        </a>
+      </li>
+
+      <!-- LOGIN -->
       <li *ngIf="!isLoggedIn()">
-        <a routerLink="/login" routerLinkActive="active">Iniciar Sesión</a>
+        <a class="nav-link" routerLink="/login" routerLinkActive="active">Iniciar Sesión</a>
       </li>
 
-      <!-- SOLO logueados -->
-      <li *ngIf="isLoggedIn()" class="profile-name">
-        Hola, {{ displayName() }}
+      <!-- LOGOUT -->
+      <li *ngIf="isLoggedIn()">
         <button class="link-btn" type="button" (click)="logout()">Cerrar</button>
       </li>
     </ul>

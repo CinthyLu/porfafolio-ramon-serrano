@@ -63,23 +63,10 @@
 
 /* ---------- STATUS BADGES ---------- */
 .status {
-  display: inline-flex;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 12px;
-}
-
-.status.pending {
-  background: rgba(245, 158, 11, 0.18);
-}
-
-.status.approved {
-  background: rgba(16, 185, 129, 0.18);
-}
-
-.status.rejected {
-  background: rgba(239, 68, 68, 0.18);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .status.pending {
@@ -107,18 +94,14 @@
   transition: 0.2s;
 }
 
-.btn-approve, .btn-reject, .btn-secondary {
+.btn-approve {
+  background: #28a745;
   border: none;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-weight: 700;
-  cursor: pointer;
+  color: white;
 }
 
-.btn-approve:hover,
-.btn-reject:hover,
-.btn-secondary:hover {
-  filter: brightness(1.05);
+.btn-approve:hover {
+  background: #218838;
 }
 
 .btn-reject {
@@ -152,8 +135,6 @@
   justify-content: center;
   padding-top: 1rem;
 }
-
-
 @media (max-width: 768px) {
   .styled-table {
     display: block;
