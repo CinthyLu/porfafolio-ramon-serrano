@@ -39,6 +39,7 @@ export class Schedule implements OnInit {
     // ⏳ ESPERAMOS a que Firebase cargue el usuario
     await this.auth.waitUntilReady();
     this.user = this.auth.currentUser;
+   this.minDate = this.toMinDateISO();
 
     console.log('[schedule] Usuario cargado:', this.user);
 
@@ -58,29 +59,47 @@ export class Schedule implements OnInit {
   }
 
   async submit() {
-    if (!this.selectedProgrammer || !this.date || !this.time) return;
+    if (this.submitting) return;
+
+    if (!this.selectedProgrammer || !this.date || !this.time) {
+      this.showNotification('Completa programador, fecha y hora', 'error');
+      return;
+    }
+
+    const selected = new Date(this.date + 'T' + this.time);
+    if (isNaN(selected.getTime())) {
+      this.showNotification('Fecha u hora inválida', 'error');
+      return;
+    }
+
+    if (selected.getTime() < Date.now()) {
+      this.showNotification('Selecciona una fecha/hora futura', 'error');
+      return;
+    }
+
     this.submitting = true;
 
     try {
-      const datetime = new Date(this.date + 'T' + this.time).toISOString();
+      const datetime = selected.toISOString();
 
       await this.appointmentService.createAppointment({
-        programmerId: this.selectedProgrammer,
+        programmerId: this.selectedProgrammer, // docId = email del programador
         userEmail: this.user!.email,
-        userId: this.user!.id, // <-- AHORA SÍ EXISTE
+        userId: this.user!.id,
         datetime,
-        comment: this.comment,
-        status: 'pending'
+        comment: this.comment?.trim(),
+        status: 'pending',
       });
 
-      alert('Solicitud enviada');
+      this.showNotification('Solicitud enviada', 'success');
+
       this.selectedProgrammer = '';
       this.date = '';
       this.time = '';
       this.comment = '';
     } catch (e) {
       console.error(e);
-      alert('Error al enviar la solicitud');
+      this.showNotification('Error al enviar la solicitud', 'error');
     } finally {
       this.submitting = false;
     }
@@ -89,4 +108,23 @@ export class Schedule implements OnInit {
   getLabel(p: any) {
     return p.specialty || p.role || p.fullName;
   }
+  notification = { visible: false, message: '', type: '' };
+  private notificationTimeout: any;
+
+  minDate = '';
+
+  private showNotification(message: string, type: 'info' | 'success' | 'error' = 'info', duration = 3000) {
+    this.notification.message = message;
+    this.notification.type = type;
+    this.notification.visible = true;
+    clearTimeout(this.notificationTimeout);
+    this.notificationTimeout = setTimeout(() => (this.notification.visible = false), duration);
+  }
+
+  private toMinDateISO(): string {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 10);
+  }
+
 }

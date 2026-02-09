@@ -4,7 +4,14 @@
 
     <h2 class="title">Solicitudes de Asesoría</h2>
 
-    <table class="styled-table">
+    <!-- LOADING -->
+    <div *ngIf="loading" class="loading-wrapper">
+      <div class="spinner"></div>
+      <p>Cargando solicitudes...</p>
+    </div>
+
+    <!-- TABLA CON DATOS -->
+    <table class="styled-table" *ngIf="!loading && appointments.length > 0">
       <thead>
         <tr>
           <th>Solicitante</th>
@@ -24,28 +31,43 @@
           <td class="comment">{{ a.comment || '—' }}</td>
 
           <td>
-            <span class="status"
-                  [ngClass]="{
-                    'pending': a.status === 'pending',
-                    'approved': a.status === 'approved',
-                    'rejected': a.status === 'rejected'
-                  }">
+            <span
+              class="status"
+              [ngClass]="{
+                'pending': a.status === 'pending',
+                'approved': a.status === 'approved',
+                'rejected': a.status === 'rejected'
+              }"
+            >
               {{ a.status | titlecase }}
             </span>
           </td>
 
           <td class="actions">
-            <button *ngIf="a.status === 'pending'" class="btn-approve" (click)="respond(a.id, true)">
+            <button
+              *ngIf="a.status === 'pending'"
+              class="btn-approve"
+              (click)="respond(a.id, true)"
+            >
               Aprobar
             </button>
 
-            <button *ngIf="a.status === 'pending'" class="btn-reject" (click)="respond(a.id, false)">
+            <button
+              *ngIf="a.status === 'pending'"
+              class="btn-reject"
+              (click)="respond(a.id, false)"
+            >
               Rechazar
             </button>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- EMPTY STATE -->
+    <div *ngIf="!loading && appointments.length === 0" class="empty-state">
+      No tienes solicitudes por ahora.
+    </div>
 
     <div class="footer">
       <button class="btn-secondary" routerLink="/">Volver</button>

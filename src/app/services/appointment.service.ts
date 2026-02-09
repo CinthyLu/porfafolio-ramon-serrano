@@ -33,4 +33,15 @@ export class AppointmentService {
     await updateDoc(docRef, { status, responseMessage } as any);
     this.comm.sendMessage({ type: 'appointment-updated', id, status, responseMessage });
   }
+
+
+  async listByUser(email: string) {
+  const q = query(this.col, where('userEmail', '==', email));
+  const snaps = await getDocs(q);
+  const items: Appointment[] = [];
+  snaps.forEach(s => items.push({ ...(s.data() as Appointment), id: s.id }));
+  return items;
+}
+
+
 }

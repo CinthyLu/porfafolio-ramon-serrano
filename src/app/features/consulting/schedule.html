@@ -4,6 +4,11 @@
   <p>Cargando autenticación...</p>
 </div>
 
+<!-- notificaiones -->
+<div class="notification" *ngIf="notification.visible" [ngClass]="notification.type">
+  {{ notification.message }}
+</div>
+
 <!-- Contenido -->
 <div *ngIf="!loading" class="schedule-wrapper">
 
@@ -11,23 +16,28 @@
 
     <h2 class="title">Agendar Asesoría</h2>
 
-    <form (ngSubmit)="submit()">
+    <form #f="ngForm" (ngSubmit)="submit()">
 
       <!-- Programador -->
       <div class="form-group">
         <label>Seleccionar Programador</label>
-        <select [(ngModel)]="selectedProgrammer" name="programmer" required>
+        <select [(ngModel)]="selectedProgrammer" name="programmer" required #progCtrl="ngModel"
+  [class.is-invalid]="progCtrl.invalid && progCtrl.touched">
           <option value="">-- Seleccionar --</option>
-          <option *ngFor="let p of programmers" [value]="p.id">
-            {{p.fullName}} — {{ getLabel(p) }}
-          </option>
+         <option *ngFor="let p of programmers" [value]="p.email">
+  {{ p.fullName }} — {{ getLabel(p) }}
+</option>
+
         </select>
+        <small class="error" *ngIf="progCtrl.invalid && progCtrl.touched">Selecciona un programador</small>
+
+
       </div>
 
       <!-- Fecha -->
       <div class="form-group">
         <label>Fecha</label>
-        <input type="date" [(ngModel)]="date" name="date" required />
+       <input type="date" [(ngModel)]="date" name="date" [min]="minDate" required />
       </div>
 
       <!-- Hora -->
@@ -44,9 +54,9 @@
 
       <!-- Botón -->
       <div class="form-actions">
-        <button class="btn-primary" type="submit" [disabled]="submitting">
-          {{ submitting ? 'Enviando...' : 'Enviar Solicitud' }}
-        </button>
+       <button type="submit" [disabled]="submitting || !selectedProgrammer || !date || !time">
+  {{ submitting ? 'Enviando...' : 'Enviar solicitud' }}
+</button>
       </div>
 
     </form>

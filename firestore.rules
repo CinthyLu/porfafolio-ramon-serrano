@@ -26,9 +26,33 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /appointments/{id} {
+  allow read: if signedIn();
+
+  // Crear: cualquier usuario logueado puede crear una solicitud
+  allow create: if signedIn()
+    && request.resource.data.userEmail == myEmail()
+    && request.resource.data.status == "pending";
+
+  // Update: solo el programador asignado o admin puede aprobar/rechazar
+  allow update: if isAdmin()
+    || (signedIn()
+        && request.resource.data.programmerId == resource.data.programmerId
+        && resource.data.programmerId == myEmail());
+
+  // Delete: solo admin
+  allow delete: if isAdmin();
+}
+
     match /{document=**} {
       allow read: if signedIn();
       allow write: if isAdmin();
     }
+
+   match /projects/{id} {
+  allow read: if signedIn();
+  allow create, update: if isAdmin() || (signedIn() && request.resource.data.ownerEmail == myEmail());
+  allow delete: if isAdmin();
+}
   }
 }

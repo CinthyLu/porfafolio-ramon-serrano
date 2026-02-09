@@ -105,6 +105,16 @@
   height: 22px;
 }
 
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary:hover:not(:disabled),
+.btn-google:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
 .links {
   margin-top: 20px;
 }

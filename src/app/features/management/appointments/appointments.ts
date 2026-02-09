@@ -18,22 +18,40 @@ export class Appointments implements OnInit, OnDestroy {
   appointments: Appointment[] = [];
   sub!: Subscription;
 
-  constructor(private apptService: AppointmentService, private auth: AuthService, private comm: CommunicationService) {}
+  loading = true;
+
+  constructor(
+    private apptService: AppointmentService,
+    private auth: AuthService,
+    private comm: CommunicationService
+  ) {}
 
   async ngOnInit() {
-    const email = this.auth.currentUser?.email;
-    if (email) {
-      this.appointments = await this.apptService.listByProgrammer(email);
-      console.log('[appointments] Citas cargadas:', this.appointments);
+    // 1) Esperar a que auth cargue
+    await this.auth.waitUntilReady();
+
+    const myEmail = this.auth.currentUser?.email;
+    if (!myEmail) {
+      this.loading = false;
+      return;
     }
 
+    // 2) Carga inicial (esto es lo que te faltaba)
+    this.appointments = await this.apptService.listByProgrammer(myEmail);
+    this.loading = false;
+
+    // 3) Updates en vivo (simulación interna)
     this.sub = this.comm.message$.subscribe(async (m: any) => {
       if (!m) return;
-      if (m.type === 'new-appointment' && m.appointment?.programmerId === this.auth.currentUser?.id) {
-        this.appointments = await this.apptService.listByProgrammer(this.auth.currentUser!.id!);
+
+      if (!this.auth.currentUser?.email) return;
+
+      if (m.type === 'new-appointment' && m.appointment?.programmerId === myEmail) {
+        this.appointments = await this.apptService.listByProgrammer(myEmail);
       }
+
       if (m.type === 'appointment-updated') {
-        this.appointments = await this.apptService.listByProgrammer(this.auth.currentUser!.id!);
+        this.appointments = await this.apptService.listByProgrammer(myEmail);
       }
     });
   }
@@ -44,9 +62,15 @@ export class Appointments implements OnInit, OnDestroy {
 
   async respond(id: string | undefined, approve: boolean) {
     if (!id) return;
+
     const status = approve ? 'approved' : 'rejected';
-    const message = approve ? 'He aprobado la asesoría' : 'Lo siento, no puedo en ese horario';
-    await this.apptService.updateAppointmentStatus(id, status, message);
-    this.appointments = await this.apptService.listByProgrammer(this.auth.currentUser!.id!);
+    const responseMessage = approve ? 'He aprobado la asesoría' : 'Lo siento, no puedo en ese horario';
+
+    await this.apptService.updateAppointmentStatus(id, status, responseMessage);
+
+    const myEmail = this.auth.currentUser?.email;
+    if (myEmail) {
+      this.appointments = await this.apptService.listByProgrammer(myEmail);
+    }
   }
 }
