@@ -82,11 +82,24 @@ porfafolio-ramon-serrano/
 	```bash
 	npm install
 	```
-3. Configura Firebase:
-	- Crea un proyecto en [Firebase](https://firebase.google.com/).
-	- Descarga tu archivo de configuración y reemplaza los datos en el entorno correspondiente.
-	- Configura Firestore y Authentication.
-4. Inicia la aplicación:
+3. Configura el backend (Spring Boot):
+	- Crea una base de datos PostgreSQL llamada `portfolio_db`.
+	- Configura las variables de entorno en tu terminal:
+		- `DB_URL=jdbc:postgresql://localhost:5432/portfolio_db`
+		- `DB_USER=portfolio_user`
+		- `DB_PASS=portfolio_pass`
+		- `JWT_SECRET=tu_secreto_largo`
+		- `CORS_ORIGINS=http://localhost:4200`
+		- `GOOGLE_CLIENT_ID=tu_google_client_id`
+		- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` (si habilitas correo real)
+	- Inicia el backend:
+		```bash
+		cd backend
+		mvn spring-boot:run
+		```
+4. Configura el frontend:
+	- Actualiza el `environment.ts` con la URL del backend (`http://localhost:8080`).
+5. Inicia la aplicación:
 	```bash
 	npm start
 	```
@@ -113,8 +126,10 @@ porfafolio-ramon-serrano/
 
 ## Tecnologías Utilizadas
 - **Angular** (frontend)
-- **Firebase** (backend, autenticación, Firestore, funciones)
-- **Node.js** (funciones serverless)
+- **Spring Boot** (backend)
+- **PostgreSQL** (base de datos relacional)
+- **JWT** (autenticación)
+- **Swagger/OpenAPI** (documentación)
 - **SCSS** (estilos)
 
 ## Scripts Disponibles

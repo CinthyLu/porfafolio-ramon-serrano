@@ -37,4 +37,15 @@ public interface AdvisoryRepository extends JpaRepository<Advisory, UUID> {
 
     @Query("SELECT FUNCTION('DATE', a.scheduledAt), COUNT(a) FROM Advisory a WHERE a.scheduledAt >= :since GROUP BY FUNCTION('DATE', a.scheduledAt) ORDER BY FUNCTION('DATE', a.scheduledAt)")
     List<Object[]> countByDateSince(LocalDateTime since);
+
+    @Query("SELECT a.programmer.id, a.programmer.name, COUNT(a) FROM Advisory a GROUP BY a.programmer.id, a.programmer.name")
+    List<Object[]> countByProgrammer();
+
+    @Query("SELECT a FROM Advisory a " +
+            "WHERE (:programmerId IS NULL OR a.programmer.id = :programmerId) " +
+            "AND (:status IS NULL OR a.status = :status) " +
+            "AND (:start IS NULL OR a.scheduledAt >= :start) " +
+            "AND (:end IS NULL OR a.scheduledAt <= :end) " +
+            "ORDER BY a.scheduledAt DESC")
+    List<Advisory> findByFilters(UUID programmerId, AdvisoryStatus status, LocalDateTime start, LocalDateTime end);
 }

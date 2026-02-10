@@ -1,94 +1,82 @@
-import { Injectable } from '@angular/core';
-import { collection, doc, setDoc, getDoc, getDocs, query, where, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { User } from '../models/user.model';
 import { Role } from '../models/role.enum';
-
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private usersCollection = collection(db, 'users');
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/users`;
 
-  constructor() {}
-
-  async createProgrammer(user: User) {
-    // Use email as document id to be consistent with register.ts
-    const id = user.email;
-    const docRef = doc(db, 'users', id);
-    await setDoc(docRef, { ...user, role: Role.Programmer, createdAt: new Date().toISOString() });
-    return id;
+  async createProgrammer(user: User): Promise<string> {
+    const created = await firstValueFrom(
+      this.http.post<User>(this.apiUrl, { ...user, role: Role.Programmer })
+    );
+    return created.email;
   }
 
-  async updateUser(id: string, data: Partial<User>) {
-    const docRef = doc(db, 'users', id);
-    await updateDoc(docRef, data as any);
+  async updateUser(id: string, data: Partial<User>): Promise<void> {
+    await firstValueFrom(
+      this.http.put(`${this.apiUrl}/${id}`, data)
+    );
   }
 
-  async deleteUser(id: string) {
-    const docRef = doc(db, 'users', id);
-    await deleteDoc(docRef);
+  async deleteUser(id: string): Promise<void> {
+    await firstValueFrom(
+      this.http.delete(`${this.apiUrl}/${id}`)
+    );
   }
 
   async getUserById(id: string): Promise<User | null> {
-    const docRef = doc(db, 'users', id);
-    const snap = await getDoc(docRef);
-    if (snap.exists()) {
-      const data = snap.data() as User;
-      data.id = snap.id;
-      return data;
+    try {
+      return await firstValueFrom(
+        this.http.get<User>(`${this.apiUrl}/${id}`)
+      );
+    } catch (error) {
+      return null;
     }
-    return null;
   }
-async updateUserByEmail(email: string, data: Partial<any>) {
-  const ref = doc(db, 'users', email);
-  await updateDoc(ref, {
-    ...data,
-    updatedAt: new Date().toISOString(),
-  });
-}
+
+  async updateUserByEmail(email: string, data: Partial<any>): Promise<void> {
+    await firstValueFrom(
+      this.http.put(`${this.apiUrl}/email/${email}`, data)
+    );
+  }
 
   async listProgrammers(): Promise<User[]> {
-    const q = query(this.usersCollection, where('role', '==', Role.Programmer));
-    const snaps = await getDocs(q);
-    const items: User[] = [];
-    snaps.forEach(s => items.push({ ...(s.data() as User), id: s.id }));
-    return items;
+    return await firstValueFrom(
+      this.http.get<User[]>(`${this.apiUrl}/role/${Role.Programmer}`)
+    );
   }
 
-  //lista tdods los usuarios
   async listUsers(): Promise<User[]> {
-    const ref = collection(db, 'users');
-    const snap = await getDocs(ref);
-
-    return snap.docs.map(d => {
-      const data = d.data() as User;
-      return { ...data, id: d.id };
-    });
+    return await firstValueFrom(
+      this.http.get<User[]>(this.apiUrl)
+    );
   }
-// Actualiza  el rol
+
   async updateUserRole(emailDocId: string, role: Role): Promise<void> {
-    const ref = doc(db, 'users', emailDocId);
-    await updateDoc(ref, {
-      role,
-      updatedAt: new Date().toISOString(),
-    });
+    await firstValueFrom(
+      this.http.put(`${this.apiUrl}/email/${emailDocId}/role`, { role })
+    );
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    const ref = doc(db, 'users', email);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) return null;
-    const data = snap.data() as User;
-    data.id = snap.id;
-    return data;
+    try {
+      return await firstValueFrom(
+        this.http.get<User>(`${this.apiUrl}/email/${email}`)
+      );
+    } catch (error) {
+      return null;
+    }
   }
-  async updateMyProfile(email: string, data: any): Promise<void> {
-    const ref = doc(db, 'users', email);
-        const { role, ...safe } = data;
 
-    await updateDoc(ref, {
-      ...safe,
-      updatedAt: new Date().toISOString(),
-    });
-}
+  async updateMyProfile(email: string, data: any): Promise<void> {
+    const { role, ...safe } = data;
+    await firstValueFrom(
+      this.http.put(`${this.apiUrl}/email/${email}`, safe)
+    );
+  }
 }

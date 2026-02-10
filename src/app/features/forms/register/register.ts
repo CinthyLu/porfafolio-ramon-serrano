@@ -1,18 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
 
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-} from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-
-import { db } from '../../../firebase';
-import { Role } from '../../../models/role.enum';
+declare const google: any;
 
 @Component({
   selector: 'app-register',
@@ -21,7 +13,7 @@ import { Role } from '../../../models/role.enum';
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
-export class Register {
+export class Register implements OnInit {
   fullName = '';
   email = '';
   password = '';
@@ -32,7 +24,24 @@ export class Register {
   notification = { visible: false, message: '', type: '' };
   private notificationTimeout: any;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private ngZone: NgZone
+  ) {}
+
+  ngOnInit() {
+    this.initializeGoogleSignIn();
+  }
+
+  private initializeGoogleSignIn() {
+    if (typeof google !== 'undefined') {
+      google.accounts.id.initialize({
+        client_id: '320854215368-h2jrnsaglbup26ghhik7h5kck64s3hv6.apps.googleusercontent.com',
+        callback: (response: any) => this.handleGoogleResponse(response)
+      });
+    }
+  }
 
   private showNotification(
     message: string,
@@ -51,64 +60,9 @@ export class Register {
   }
 
   async register(form: NgForm) {
-    if (this.submitting) return;
-
-    if (!form.valid) {
-      this.showNotification('Revisa los campos marcados', 'error');
-      return;
-    }
-
-    if (this.password !== this.password1) {
-      this.showNotification('Las contraseñas no coinciden', 'error');
-      return;
-    }
-
-    if (!this.isStrongPassword(this.password)) {
-      this.showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
-      return;
-    }
-
-    this.submitting = true;
-
-    try {
-      const auth = getAuth();
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        this.email.trim(),
-        this.password
-      );
-
-      await setDoc(
-        doc(db, 'users', this.email.trim()),
-        {
-          fullName: this.fullName.trim(),
-          email: this.email.trim(),
-          photoUrl: userCredential.user.photoURL || '',
-          role: Role.User,
-          createdAt: new Date().toISOString(),
-          contacts: {},
-        },
-        { merge: true }
-      );
-
-      this.showNotification('Cuenta creada correctamente', 'success');
-      await this.router.navigate(['/home']);
-} catch (e: any) {
-  console.error('Error en registro:', e);
-
-  const code = e?.code || '';
-  let msg = 'No se pudo crear la cuenta';
-
-  if (code === 'auth/email-already-in-use') msg = 'Ese correo ya está registrado';
-  else if (code === 'auth/invalid-email') msg = 'El correo no es válido';
-  else if (code === 'auth/weak-password') msg = 'La contraseña es muy débil (mínimo 6 caracteres)';
-  else if (code === 'auth/operation-not-allowed') msg = 'Debes habilitar Email/Password en Firebase Authentication';
-  else if (code === 'auth/network-request-failed') msg = 'Error de red. Revisa tu conexión';
-
-  this.showNotification(msg, 'error');
-} finally {
-  this.submitting = false;
-}
+    // Note: Email/password registration is removed. 
+    // Use Google Sign-In or implement backend endpoint for email/password registration
+    this.showNotification('Por favor usa Google Sign-In para registrarte', 'info');
   }
 
   async loginWithGoogle() {
@@ -116,38 +70,30 @@ export class Register {
     this.submitting = true;
 
     try {
-      const provider = new GoogleAuthProvider();
-      const auth = getAuth();
-
-      const result = await signInWithPopup(auth, provider);
-
-      const email = result.user.email || '';
-      if (!email) {
-        this.showNotification('Google no devolvió email', 'error');
-        return;
+      if (typeof google !== 'undefined') {
+        google.accounts.id.prompt();
+      } else {
+        this.showNotification('Google Sign-In no está disponible', 'error');
       }
-
-      const ref = doc(db, 'users', email);
-      const snap = await getDoc(ref);
-
-      if (!snap.exists()) {
-        await setDoc(ref, {
-          fullName: result.user.displayName || 'Usuario',
-          email,
-          photoUrl: result.user.photoURL || '',
-          role: Role.User,
-          createdAt: new Date().toISOString(),
-          contacts: {},
-        });
-      }
-
-      this.showNotification('Inicio de sesión exitoso', 'success');
-      await this.router.navigate(['/home']);
     } catch (e) {
       console.error('Error login Google en register:', e);
       this.showNotification('Ocurrió un error con Google', 'error');
     } finally {
       this.submitting = false;
     }
+  }
+
+  private async handleGoogleResponse(response: any) {
+    this.ngZone.run(async () => {
+      try {
+        const user = await this.authService.loginWithGoogle(response.credential);
+        
+        this.showNotification('Inicio de sesión exitoso', 'success');
+        await this.router.navigate(['/home']);
+      } catch (e) {
+        console.error('Error login Google:', e);
+        this.showNotification('Ocurrió un error con Google', 'error');
+      }
+    });
   }
 }

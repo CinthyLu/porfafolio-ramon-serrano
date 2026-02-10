@@ -1,35 +1,41 @@
-import { Injectable } from '@angular/core';
-import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { Project } from '../models/project.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
-  private col = collection(db, 'projects');
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/projects`;
 
-  constructor() {}
-
-  async createProject(p: Project & { programmerId: string }) {
-    const payload = { ...p, createdAt: new Date().toISOString() };
-    const docRef = await addDoc(this.col, payload as any);
-    return { ...(payload as any), id: docRef.id } as Project;
+  async createProject(p: Project & { programmerId: string }): Promise<Project> {
+    return await firstValueFrom(
+      this.http.post<Project>(this.apiUrl, p)
+    );
   }
 
-  async listByProgrammer(programmerId: string) {
-    const q = query(this.col, where('programmerId', '==', programmerId));
-    const snaps = await getDocs(q);
-    const items: Project[] = [];
-    snaps.forEach(s => items.push({ ...(s.data() as Project), id: s.id }));
-    return items;
+  async listByProgrammer(programmerId: string): Promise<Project[]> {
+    return await firstValueFrom(
+      this.http.get<Project[]>(`${this.apiUrl}/programmer/${programmerId}`)
+    );
   }
 
-  async updateProject(id: string, data: Partial<Project>) {
-    const docRef = doc(db, 'projects', id);
-    await updateDoc(docRef, data as any);
+  async updateProject(id: string, data: Partial<Project>): Promise<void> {
+    await firstValueFrom(
+      this.http.put(`${this.apiUrl}/${id}`, data)
+    );
   }
 
-  async deleteProject(id: string) {
-    const docRef = doc(db, 'projects', id);
-    await deleteDoc(docRef);
+  async deleteProject(id: string): Promise<void> {
+    await firstValueFrom(
+      this.http.delete(`${this.apiUrl}/${id}`)
+    );
+  }
+
+  async getAllProjects(): Promise<Project[]> {
+    return await firstValueFrom(
+      this.http.get<Project[]>(this.apiUrl)
+    );
   }
 }

@@ -2,11 +2,13 @@ package com.portfolio.controller;
 
 import com.portfolio.dto.AuthResponse;
 import com.portfolio.dto.GoogleAuthRequest;
+import com.portfolio.dto.RefreshTokenRequest;
 import com.portfolio.model.Role;
 import com.portfolio.model.User;
 import com.portfolio.repository.UserRepository;
 import com.portfolio.security.GoogleAuthService;
 import com.portfolio.security.JwtService;
+import com.portfolio.service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -25,6 +27,7 @@ public class AuthController {
 
     private final GoogleAuthService googleAuthService;
     private final JwtService jwtService;
+        private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
 
     @Value("${app.jwt.expiration}")
@@ -48,17 +51,21 @@ public class AuthController {
             user = userRepository.save(user);
         }
 
-        // Generate JWT
+        // Generate JWT access token
         String token = jwtService.generateToken(
                 user.getEmail(),
                 user.getRole().name(),
                 user.getId().toString());
+
+        // Issue refresh token
+        String refreshToken = refreshTokenService.createToken(user).getToken();
 
         log.info("User {} authenticated successfully with role {}", user.getEmail(), user.getRole());
 
         return ResponseEntity.ok(AuthResponse.builder()
                 .accessToken(token)
                 .tokenType("Bearer")
+                .refreshToken(refreshToken)
                 .expiresIn(jwtExpiration / 1000) // Convert to seconds
                 .user(AuthResponse.UserDto.builder()
                         .id(user.getId().toString())
@@ -68,6 +75,41 @@ public class AuthController {
                         .avatarUrl(user.getAvatarUrl())
                         .build())
                 .build());
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh JWT", description = "Exchange refresh token for new access token")
+    public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        var refreshToken = refreshTokenService.validateToken(request.getRefreshToken());
+
+        User user = refreshToken.getUser();
+        String accessToken = jwtService.generateToken(
+                user.getEmail(),
+                user.getRole().name(),
+                user.getId().toString());
+
+        String newRefreshToken = refreshTokenService.rotateToken(refreshToken).getToken();
+
+        return ResponseEntity.ok(AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(newRefreshToken)
+                .tokenType("Bearer")
+                .expiresIn(jwtExpiration / 1000)
+                .user(AuthResponse.UserDto.builder()
+                        .id(user.getId().toString())
+                        .email(user.getEmail())
+                        .name(user.getName())
+                        .role(user.getRole().name())
+                        .avatarUrl(user.getAvatarUrl())
+                        .build())
+                .build());
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Logout", description = "Revoke refresh token")
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
+        refreshTokenService.revokeToken(request.getRefreshToken());
+        return ResponseEntity.noContent().build();
     }
 
     private User createNewUser(GoogleAuthService.GoogleUserInfo googleUser) {

@@ -16,6 +16,8 @@ public class DashboardStats {
     private Map<String, Long> advisoryCountByStatus;
     private List<TimeSeriesData> advisoryTimeSeries;
     private List<TechnologyCount> topTechnologies;
+    private List<UserCount> advisoriesByProgrammer;
+    private List<UserCount> projectsByProgrammer;
     private long totalProjects;
     private long totalAdvisories;
     private long pendingAdvisories;
@@ -36,6 +38,16 @@ public class DashboardStats {
     @AllArgsConstructor
     public static class TechnologyCount {
         private String technology;
+        private Long count;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserCount {
+        private String userId;
+        private String name;
         private Long count;
     }
 }

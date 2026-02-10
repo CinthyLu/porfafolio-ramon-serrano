@@ -33,6 +33,7 @@ public class AdvisoryService {
     private final AdvisoryRepository advisoryRepository;
     private final UserRepository userRepository;
     private final AvailabilityRepository availabilityRepository;
+    private final NotificationService notificationService;
 
     public Page<AdvisoryResponse> findByProgrammerId(UUID programmerId, AdvisoryStatus status, Pageable pageable) {
         if (status != null) {
@@ -88,6 +89,8 @@ public class AdvisoryService {
         log.info("Created advisory {} from {} to {} at {}",
                 saved.getId(), external.getEmail(), programmer.getEmail(), saved.getScheduledAt());
 
+        notificationService.sendAdvisoryRequestNotification(programmer, external, saved);
+
         return mapToResponse(saved);
     }
 
@@ -110,6 +113,8 @@ public class AdvisoryService {
         Advisory saved = advisoryRepository.save(advisory);
         log.info("Approved advisory: {}", advisoryId);
 
+        notificationService.sendAdvisoryApprovedNotification(advisory.getExternal(), advisory.getProgrammer(), saved);
+
         return mapToResponse(saved);
     }
 
@@ -131,6 +136,8 @@ public class AdvisoryService {
 
         Advisory saved = advisoryRepository.save(advisory);
         log.info("Rejected advisory: {}", advisoryId);
+
+        notificationService.sendAdvisoryRejectedNotification(advisory.getExternal(), advisory.getProgrammer(), saved);
 
         return mapToResponse(saved);
     }

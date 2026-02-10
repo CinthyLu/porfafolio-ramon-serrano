@@ -84,10 +84,33 @@ public class DashboardService {
         long pending = statusCounts.getOrDefault("PENDING", 0L);
         long completed = statusCounts.getOrDefault("COMPLETED", 0L);
 
+        List<DashboardStats.UserCount> advisoriesByProgrammer = null;
+        List<DashboardStats.UserCount> projectsByProgrammer = null;
+
+        if (programmerId == null) {
+            advisoriesByProgrammer = advisoryRepository.countByProgrammer().stream()
+                .map(row -> DashboardStats.UserCount.builder()
+                    .userId(row[0].toString())
+                    .name(row[1].toString())
+                    .count((Long) row[2])
+                    .build())
+                .toList();
+
+            projectsByProgrammer = projectRepository.countByProgrammer().stream()
+                .map(row -> DashboardStats.UserCount.builder()
+                    .userId(row[0].toString())
+                    .name(row[1].toString())
+                    .count((Long) row[2])
+                    .build())
+                .toList();
+        }
+
         return DashboardStats.builder()
                 .advisoryCountByStatus(statusCounts)
                 .advisoryTimeSeries(timeSeries)
                 .topTechnologies(topTech)
+                .advisoriesByProgrammer(advisoriesByProgrammer)
+                .projectsByProgrammer(projectsByProgrammer)
                 .totalProjects(totalProjects)
                 .totalAdvisories(totalAdvisories)
                 .pendingAdvisories(pending)

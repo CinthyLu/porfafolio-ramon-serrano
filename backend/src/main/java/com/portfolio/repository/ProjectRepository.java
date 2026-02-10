@@ -27,4 +27,16 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
     List<Project> findActiveProjectsByUserId(UUID userId);
 
     long countByUserId(UUID userId);
+
+    @Query("SELECT p.user.id, p.user.name, COUNT(p) FROM Project p GROUP BY p.user.id, p.user.name")
+    List<Object[]> countByProgrammer();
+
+        @Query("SELECT p FROM Project p " +
+            "WHERE (:userId IS NULL OR p.user.id = :userId) " +
+            "AND (:status IS NULL OR p.status = :status) " +
+            "AND (:start IS NULL OR p.createdAt >= :start) " +
+            "AND (:end IS NULL OR p.createdAt <= :end) " +
+            "ORDER BY p.createdAt DESC")
+        List<Project> findByFilters(UUID userId, ProjectStatus status, java.time.LocalDateTime start,
+            java.time.LocalDateTime end);
 }

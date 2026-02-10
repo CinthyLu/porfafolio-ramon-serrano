@@ -1,140 +1,114 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { User } from '../models/user.model';
-import { Role } from '../models/role.enum';
-import {  doc } from "firebase/firestore";
+import { environment } from '../../environments/environment';
 
+interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl;
 
-  private auth = getAuth();
-
-  /** usuario Firebase crudo (solo UID, email, photo, etc.) */
-  private firebaseUser: FirebaseUser | null = null;
-
-  /** perfil de Firestore */
   private userSubject = new BehaviorSubject<User | null>(null);
   public user$ = this.userSubject.asObservable();
 
-  /** indica que onAuthStateChanged ya corrió */
   private readySubject = new BehaviorSubject<boolean>(false);
   public ready$ = this.readySubject.asObservable();
 
   constructor() {
-    onAuthStateChanged(this.auth, async (user) => {
-      console.log('[auth] onAuthStateChanged ->', user);
-
-      this.firebaseUser = user;
-
-      if (user?.email) {
-        // cargamos perfil desde Firestore
-        const profile = await this.loadUserProfileByEmail(user.email);
-        this.userSubject.next(profile);
-      } else {
-        this.userSubject.next(null);
-      }
-
-      // primera vez que Firebase responde
-      if (!this.readySubject.value) {
-        this.readySubject.next(true);
-      }
-    });
-
+    this.initializeAuth();
   }
 
-  /** Cargar perfil por email desde Firestore */
-  private async loadUserProfileByEmail(email: string): Promise<User | null> {
+  private async initializeAuth() {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      try {
+        const user = await firstValueFrom(
+          this.http.get<User>(`${this.apiUrl}/auth/me`)
+        );
+        this.userSubject.next(user);
+      } catch (error) {
+        console.error('[auth] Error loading user profile:', error);
+        await this.tryRefreshToken();
+      }
+    }
+    this.readySubject.next(true);
+  }
+
+  async loginWithGoogle(idToken: string): Promise<User> {
+    const response = await firstValueFrom(
+      this.http.post<AuthResponse>(`${this.apiUrl}/auth/google`, { idToken })
+    );
+    
+    localStorage.setItem('access_token', response.accessToken);
+    localStorage.setItem('refresh_token', response.refreshToken);
+    this.userSubject.next(response.user);
+    
+    return response.user;
+  }
+
+  private async tryRefreshToken(): Promise<boolean> {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (!refreshToken) {
+      this.clearAuth();
+      return false;
+    }
+
     try {
-      const ref = doc(db, 'users', email);
-      const snap = await getDoc(ref);
-
-      if (snap.exists()) {
-        const data = snap.data() as User;
-        data.id = snap.id;
-        return data;
-      }
-
-      return null;
-    } catch (err) {
-      console.error('[auth] Error cargando perfil:', err);
-      return null;
-    }
-
-
-  }
-  // Crear el perfil en Firestore si no existe (para login con Google)
-  async ensureUserProfile(user: FirebaseUser): Promise<User> {
-    if (!user.email) {
-      throw new Error('El usuario autenticado no tiene email.');
-    }
-
-    const email = user.email;
-    const ref = doc(db, 'users', email);
-    const snap = await getDoc(ref);
-
-    if (snap.exists()) {
-      const data = snap.data() as User;
-      data.id = snap.id;
-      return data;
-    }
-
-    const newProfile: User = {
-      id: user.uid,
-      email,
-      fullName: user.displayName || 'Usuario',
-      role: Role.User, //
-      photoUrl: user.photoURL || '',
-      createdAt: new Date().toISOString(),
-      contacts: {},
-    };
-
-    await setDoc(ref, newProfile);
-    return newProfile;
-  }
-  /** Perfil actual ya mapeado + rol (lo que usas en guards) */
-  get currentUser(): User | null {
-    return this.userSubject.value;
-  }
-  set currentUser(user: User | null) {
-  }
-
-  async getUserByEmail(email: string): Promise<User | null> {
-    try {
-      const ref = doc(db, 'users', email);
-      const snap = await getDoc(ref);
-
-      if (!snap.exists()) return null;
-
-      const data = snap.data() as User;
-      data.id = snap.id;
-      return data;
-    } catch (err) {
-      console.error('[auth] getUserByEmail error:', err);
-      return null;
+      const response = await firstValueFrom(
+        this.http.post<AuthResponse>(`${this.apiUrl}/auth/refresh`, { refreshToken })
+      );
+      
+      localStorage.setItem('access_token', response.accessToken);
+      localStorage.setItem('refresh_token', response.refreshToken);
+      this.userSubject.next(response.user);
+      
+      return true;
+    } catch (error) {
+      console.error('[auth] Refresh token failed:', error);
+      this.clearAuth();
+      return false;
     }
   }
 
-
-  /** Verificar rol */
-hasRole(role: string | string[]): boolean {
-  const user = this.currentUser;
-  if (!user) return false;
-
-  if (Array.isArray(role)) return role.includes(user.role);
-  return user.role === role;
-}
-
-  /** Cerrar sesión */
   async signOut(): Promise<void> {
-    await this.auth.signOut();
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (refreshToken) {
+      try {
+        await firstValueFrom(
+          this.http.post(`${this.apiUrl}/auth/logout`, { refreshToken })
+        );
+      } catch (error) {
+        console.error('[auth] Logout error:', error);
+      }
+    }
+    this.clearAuth();
+  }
+
+  private clearAuth() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     this.userSubject.next(null);
   }
 
-  /** Esperar a que Firebase termine de verificar si hay usuario */
+  get currentUser(): User | null {
+    return this.userSubject.value;
+  }
+
+  hasRole(role: string | string[]): boolean {
+    const user = this.currentUser;
+    if (!user) return false;
+
+    if (Array.isArray(role)) return role.includes(user.role);
+    return user.role === role;
+  }
+
   async waitUntilReady(): Promise<void> {
     if (this.readySubject.value) return;
 
@@ -146,5 +120,16 @@ hasRole(role: string | string[]): boolean {
         }
       });
     });
+  }
+
+  async getUserByEmail(email: string): Promise<User | null> {
+    try {
+      return await firstValueFrom(
+        this.http.get<User>(`${this.apiUrl}/users/email/${email}`)
+      );
+    } catch (error) {
+      console.error('[auth] getUserByEmail error:', error);
+      return null;
+    }
   }
 }

@@ -1,47 +1,54 @@
-import { Injectable } from '@angular/core';
-import { collection, addDoc, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { Appointment } from '../models/appointment.model';
 import { CommunicationService } from './communication.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AppointmentService {
-  private col = collection(db, 'appointments');
+  private http = inject(HttpClient);
+  private comm = inject(CommunicationService);
+  private apiUrl = `${environment.apiUrl}/advisories`;
 
-  constructor(private comm: CommunicationService) {}
-
-  async createAppointment(a: Appointment) {
-    const payload = { ...a, status: 'pending', createdAt: new Date().toISOString() };
-    const docRef = await addDoc(this.col, payload as any);
-    const id = docRef.id;
-    const appointment = { ...payload, id } as Appointment;
-    // Notify programmer via CommunicationService (internal simulation)
+  async createAppointment(a: Appointment): Promise<Appointment> {
+    const appointment = await firstValueFrom(
+      this.http.post<Appointment>(this.apiUrl, {
+        programmerId: a.programmerId,
+        userEmail: a.userEmail,
+        datetime: a.datetime,
+        comment: a.comment,
+        userId: a.userId
+      })
+    );
+    
     this.comm.sendMessage({ type: 'new-appointment', appointment });
     return appointment;
   }
 
-  async listByProgrammer(email: string) {
-    const q = query(this.col, where('programmerId', '==', email));
-    const snaps = await getDocs(q);
-    const items: Appointment[] = [];
-    snaps.forEach(s => items.push({ ...(s.data() as Appointment), id: s.id }));
-    return items;
+  async listByProgrammer(email: string): Promise<Appointment[]> {
+    return await firstValueFrom(
+      this.http.get<Appointment[]>(`${this.apiUrl}/programmer/${email}`)
+    );
   }
 
-  async updateAppointmentStatus(id: string, status: string, responseMessage?: string) {
-    const docRef = doc(db, 'appointments', id);
-    await updateDoc(docRef, { status, responseMessage } as any);
+  async updateAppointmentStatus(id: string, status: string, responseMessage?: string): Promise<void> {
+    await firstValueFrom(
+      this.http.put(`${this.apiUrl}/${id}/status`, { status, responseMessage })
+    );
+    
     this.comm.sendMessage({ type: 'appointment-updated', id, status, responseMessage });
   }
 
+  async listByUser(email: string): Promise<Appointment[]> {
+    return await firstValueFrom(
+      this.http.get<Appointment[]>(`${this.apiUrl}/user/${email}`)
+    );
+  }
 
-  async listByUser(email: string) {
-  const q = query(this.col, where('userEmail', '==', email));
-  const snaps = await getDocs(q);
-  const items: Appointment[] = [];
-  snaps.forEach(s => items.push({ ...(s.data() as Appointment), id: s.id }));
-  return items;
-}
-
-
+  async getAllAppointments(): Promise<Appointment[]> {
+    return await firstValueFrom(
+      this.http.get<Appointment[]>(this.apiUrl)
+    );
+  }
 }
