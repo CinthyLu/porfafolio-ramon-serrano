@@ -49,7 +49,7 @@ app:
     origins: ${CORS_ORIGINS:http://localhost:4200}
 
   google:
-    client-id: ${GOOGLE_CLIENT_ID:your-google-client-id}
+    client-id: ${GOOGLE_CLIENT_ID:320854215368-h2jrnsaglbup26ghhik7h5kck64s3hv6.apps.googleusercontent.com}
 
   mail:
     from: ${SMTP_FROM:noreply@portfolio.com}
