@@ -27,9 +27,9 @@ export class Header implements OnInit {
     return !!this.email;
   }
 
-  isAdmin() { return this.role === 'admin'; }
-  isProgrammer() { return this.role === 'programmer'; }
-  isUser() { return this.role === 'user' || this.role === null; }
+  isAdmin() { return this.role === 'ADMIN'; }
+  isProgrammer() { return this.role === 'PROGRAMMER'; }
+  isUser() { return this.role === 'USER' || this.role === null; }
 
   displayName() {
     return this.fullName || this.email || '';

@@ -12,14 +12,16 @@ export interface ContactLinks {
 export interface User {
   id?: string;
   email: string;
-  fullName: string;
+  fullName?: string;
+  name?: string;
   
-  role: Role;
+  role: string; // Changed from Role enum to string to match backend
   specialty?: string;
   bio?: string;
 
   
   photoUrl?: string;
+  avatarUrl?: string;
   contacts?: ContactLinks;
   createdAt?: string;
   updatedAt?: string;
