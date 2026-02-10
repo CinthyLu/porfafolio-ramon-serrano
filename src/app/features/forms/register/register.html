@@ -81,9 +81,11 @@
   {{ submitting ? 'Procesando...' : 'Registrarse' }}
 </button>
 
-      <button type="button" class="btn-google" (click)="loginWithGoogle()" [disabled]="submitting">
-        {{ submitting ? 'Procesando...' : 'Continuar con Google' }}
-      </button>
+      <div class="separator" style="margin: 20px 0;">
+        <span>O</span>
+      </div>
+
+      <div id="googleSignInButtonRegister" style="display: flex; justify-content: center;"></div>
 
       <div class="links">
         <p>¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a></p>

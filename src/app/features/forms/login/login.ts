@@ -30,8 +30,19 @@ export class Login implements OnInit {
     if (typeof google !== 'undefined') {
       google.accounts.id.initialize({
         client_id: '320854215368-h2jrnsaglbup26ghhik7h5kck64s3hv6.apps.googleusercontent.com',
-        callback: (response: any) => this.handleGoogleResponse(response)
+        callback: (response: any) => this.handleGoogleResponse(response),
+        auto_select: false,
+        cancel_on_tap_outside: true
       });
+      
+      // Renderizar el botón de Google
+      const buttonDiv = document.getElementById('googleSignInButton');
+      if (buttonDiv) {
+        google.accounts.id.renderButton(
+          buttonDiv,
+          { theme: 'outline', size: 'large', width: 300, text: 'continue_with' }
+        );
+      }
     }
   }
 
@@ -44,16 +55,9 @@ export class Login implements OnInit {
   }
 
   async loginWithGoogle() {
-    try {
-      if (typeof google !== 'undefined') {
-        google.accounts.id.prompt();
-      } else {
-        this.showNotification('Google Sign-In no está disponible', 'error');
-      }
-    } catch (error) {
-      console.error('[login] Error initializing Google Sign-In:', error);
-      this.showNotification('Error al iniciar sesión con Google', 'error');
-    }
+    // Este método ya no es necesario, el botón se renderiza automáticamente
+    // Pero lo mantenemos por compatibilidad con el HTML
+    this.showNotification('Por favor usa el botón de Google', 'info');
   }
 
   private async handleGoogleResponse(response: any) {
