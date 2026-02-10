@@ -5,7 +5,7 @@ import { NgIf, NgClass } from '@angular/common';
 import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-import { db } from '../../../../main';
+import { db } from '../../../firebase';
 import { AuthService } from '../../../services/auth.service';
 import { Role } from '../../../models/role.enum';
 
@@ -55,7 +55,7 @@ export class Login {
           fullName: result.user.displayName || 'Usuario',
           email,
           photoUrl: result.user.photoURL || '',
-          role: 'user', 
+          role: 'user',
           createdAt: new Date().toISOString(),
           contacts: {},
         });

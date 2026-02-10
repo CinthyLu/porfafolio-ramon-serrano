@@ -11,7 +11,7 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-import { db } from '../../../../main';
+import { db } from '../../../firebase';
 import { Role } from '../../../models/role.enum';
 
 @Component({

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { collection, doc, setDoc, getDoc, getDocs, query, where, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../main';
+import { db } from '../firebase';
 import { User } from '../models/user.model';
 import { Role } from '../models/role.enum';
 

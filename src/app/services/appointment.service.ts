@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { collection, addDoc, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../../main';
+import { db } from '../firebase';
 import { Appointment } from '../models/appointment.model';
 import { CommunicationService } from './communication.service';
 

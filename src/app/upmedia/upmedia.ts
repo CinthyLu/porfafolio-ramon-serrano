@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { storage } from '../../main';
+import { storage } from '../firebase';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 @Component({
@@ -21,6 +21,6 @@ export class Upmedia {
     const archivoRef = ref(storage, ruta);
 
     const res = await uploadBytes( archivoRef , file);
-    //ggjjhj
+    //
   }
 }

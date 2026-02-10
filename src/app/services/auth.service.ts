@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../../main';
+import { db } from '../firebase';
 import { User } from '../models/user.model';
 import { Role } from '../models/role.enum';
 import {  doc } from "firebase/firestore";
@@ -86,7 +86,7 @@ export class AuthService {
       id: user.uid,
       email,
       fullName: user.displayName || 'Usuario',
-      role: Role.User, // 
+      role: Role.User, //
       photoUrl: user.photoURL || '',
       createdAt: new Date().toISOString(),
       contacts: {},
