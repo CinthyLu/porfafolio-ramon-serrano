@@ -221,7 +221,7 @@ public class ReportService {
             return baos.toByteArray();
         }
     }
-
+// en PDF
     private void addTableHeader(PdfPTable table, String text) {
         PdfPCell cell = new PdfPCell(new Phrase(text, new Font(Font.HELVETICA, 10, Font.BOLD)));
         cell.setBackgroundColor(java.awt.Color.LIGHT_GRAY);
