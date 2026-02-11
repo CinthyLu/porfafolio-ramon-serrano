@@ -6,13 +6,22 @@ import {
   HttpInterceptor
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CommunicationService } from './communication.service';
 
 @Injectable()
 export class CommunicationInterceptor implements HttpInterceptor {
-  constructor(private communicationService: CommunicationService) {}
+  constructor() {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    const token = localStorage.getItem('access_token');
+    
+    if (token) {
+      // Clone request and add Authorization header
+      request = request.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    }
+    
     return next.handle(request);
-  }
-}
+  }}
