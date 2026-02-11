@@ -76,18 +76,16 @@ clearSelection() {
     if (!this.isAdmin) {
       alert('Solo el administrador puede cambiar roles.');
       return;
-
-      if (!this.isAdmin) return;
     }
+
     const newRole = newRoleValue as Role;
     if (u.email === this.authService.currentUser?.email && newRole === Role.User) {
       alert('No puedes quitarte el rol admin a ti misma.');
       return;
     }
-    const docId = u.email;
 
     try {
-      await this.userService.updateUserRole(docId, newRole);
+      await this.userService.updateUserRole(u.email || '', newRole);
       u.role = newRole;
       this.applyFilter();
     } catch (e) {

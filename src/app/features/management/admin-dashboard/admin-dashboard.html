@@ -1,0 +1,84 @@
+<div class="admin-dashboard panel-admin">
+  <h1>📊 Dashboard Administrativo</h1>
+  <p>Visualiza estadísticas y métricas principales</p>
+
+  <div *ngIf="loading" class="loading">
+    <p>Cargando estadísticas...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>❌ {{ error }}</p>
+    <button class="btn btn-primary" (click)="loadDashboard()">Reintentar</button>
+  </div>
+
+  <div *ngIf="!loading && stats" class="dashboard-content">
+    <!-- Tarjetas de estadísticas -->
+    <div class="stats-cards">
+      <div class="stat-card">
+        <h3>Proyectos Totales</h3>
+        <div class="stat-value">{{ stats.totalProjects }}</div>
+        <p class="stat-label">Proyectos en el sistema</p>
+      </div>
+
+      <div class="stat-card">
+        <h3>Asesorías Totales</h3>
+        <div class="stat-value">{{ stats.totalAdvisories }}</div>
+        <p class="stat-label">Asesorías registradas</p>
+      </div>
+
+      <div class="stat-card highlight">
+        <h3>Asesorías Completadas</h3>
+        <div class="stat-value success">{{ stats.completedAdvisories }}</div>
+        <p class="stat-label">{{ getPercentage(stats.completedAdvisories, stats.totalAdvisories) }}%</p>
+      </div>
+
+      <div class="stat-card highlight">
+        <h3>Asesorías Pendientes</h3>
+        <div class="stat-value warning">{{ stats.pendingAdvisories }}</div>
+        <p class="stat-label">Requieren atención</p>
+      </div>
+    </div>
+
+    <!-- Estado de asesorías -->
+    <div class="section">
+      <h2>Estado de Asesorías</h2>
+      <div class="status-grid">
+        <div *ngFor="let status of (stats.advisoryCountByStatus | keyvalue)" class="status-item">
+          <span class="status-name">{{ status.key }}</span>
+          <span class="status-count">{{ status.value }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tecnologías principales -->
+    <div class="section">
+      <h2>Tecnologías Más Usadas</h2>
+      <div class="tech-list">
+        <div *ngFor="let tech of stats.topTechnologies" class="tech-item">
+          <div class="tech-bar">
+            <div 
+              class="tech-fill" 
+              [style.width.%]="(tech.count / (stats.topTechnologies[0]?.count || 1)) * 100">
+              {{ tech.technology }}
+            </div>
+          </div>
+          <span class="tech-count">{{ tech.count }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acciones rápidas -->
+  <div class="quick-actions">
+    <h3>Acciones Rápidas</h3>
+    <button class="btn btn-primary" routerLink="/users">
+      👥 Gestionar Usuarios
+    </button>
+    <button class="btn btn-secondary" routerLink="/projects">
+      📁 Ver Proyectos
+    </button>
+    <button class="btn btn-secondary" routerLink="/">
+      🏠 Volver a Home
+    </button>
+  </div>
+</div>
