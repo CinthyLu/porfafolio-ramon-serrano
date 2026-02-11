@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { SeoService } from '../../services/seo.service';
 
 @Component({
   selector: 'app-consulting',
@@ -9,7 +10,13 @@ import { AuthService } from '../../services/auth.service';
 })
 export class Consulting {
 
-  constructor(private router: Router, private auth: AuthService) {}
+  constructor(private router: Router, private auth: AuthService, private seoService: SeoService) {
+    this.seoService.setSeoData(
+      'Consultoría - Portafolio Ramón Serrano',
+      'Servicios de consultoría en desarrollo de software y tecnología.',
+      'Consultoría, Software, Tecnología, Asesoría, Ramón Serrano'
+    );
+  }
 
   async contactar() {
     console.log('[consultar] iniciar contactar()');
