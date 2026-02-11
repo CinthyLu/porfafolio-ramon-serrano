@@ -25,6 +25,19 @@
           <input [(ngModel)]="specialty" name="specialty" />
         </div>
 
+        <div class="field phone-field">
+          <label>Teléfono (WhatsApp)</label>
+
+          <input
+          type="tel"
+          [(ngModel)]="phone"
+          name="phone"
+          placeholder="Ej: +593987654321 o 0987654321"
+  />
+
+  <small class="help">Guárdalo con prefijo de país. Ecuador: +593</small>
+</div>
+
         <div class="field">
           <label>Bio</label>
           <textarea [(ngModel)]="bio" name="bio"></textarea>

@@ -14,12 +14,12 @@ export interface User {
   email: string;
   fullName?: string;
   name?: string;
-  
+
   role: string; // Changed from Role enum to string to match backend
   specialty?: string;
   bio?: string;
+  phone?: string;
 
-  
   photoUrl?: string;
   avatarUrl?: string;
   contacts?: ContactLinks;

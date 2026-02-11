@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
-import { User } from '../../models/user.model';
 
 @Component({
   selector: 'app-profile',
@@ -25,6 +24,8 @@ export class Profile implements OnInit {
   specialty = '';
   bio = '';
 
+  phone = '';
+
   companyName = '';
   companyRole = '';
   companyDescription = '';
@@ -37,6 +38,7 @@ export class Profile implements OnInit {
 
   async ngOnInit() {
     const cu = this.authService.currentUser;
+
     if (!cu?.email) {
       await this.router.navigateByUrl('/login');
       return;
@@ -46,43 +48,84 @@ export class Profile implements OnInit {
     this.photoUrl = cu.photoUrl || '';
 
     try {
-      const u = await this.userService.getUserByEmail(this.email);
+      const me: any = await this.userService.getMe();
 
-      this.fullName = u?.fullName || cu.fullName || '';
-      this.specialty = u?.specialty || '';
-      this.bio = u?.bio || '';
+      this.fullName = me?.name || me?.fullName || cu.fullName || '';
+      this.specialty = me?.specialty || '';
+      this.bio = me?.bio || '';
+      this.phone = me?.phone || '';
 
-      this.companyName = (u as any)?.companyName || '';
-      this.companyRole = (u as any)?.companyRole || '';
-      this.companyDescription = (u as any)?.companyDescription || '';
+      this.companyName = me?.companyName || '';
+      this.companyRole = me?.companyRole || '';
+      this.companyDescription = me?.companyDescription || '';
+    } catch (e) {
+      console.error(e);
+      alert('No se pudo cargar el perfil. Revisa conexión y token.');
     } finally {
       this.loading = false;
     }
   }
 
+  private normalizePhoneEC(input: string): string | null {
+    if (!input) return null;
+
+    let p = input.trim();
+    p = p.replace(/[^\d+]/g, '');
+
+    if (p.startsWith('+')) {
+      return p.length >= 10 ? p : null;
+    }
+
+    p = p.replace(/\D/g, '');
+
+    if (p.startsWith('0') && p.length === 10) {
+      p = p.substring(1);
+      return `+593${p}`;
+    }
+
+    if (p.length === 9 && p.startsWith('9')) {
+      return `+593${p}`;
+    }
+
+    return null;
+  }
+
   async save() {
     if (this.saving) return;
+
     if (!this.fullName.trim()) {
       alert('El nombre es obligatorio.');
+      return;
+    }
+
+    const normalized = this.normalizePhoneEC(this.phone);
+
+    if (!normalized) {
+      alert('Teléfono inválido. Usa formato +5939XXXXXXXX o 09XXXXXXXX.');
       return;
     }
 
     try {
       this.saving = true;
 
-      await this.userService.updateMyProfile(this.email, {
-        fullName: this.fullName.trim(),
-        specialty: this.specialty.trim(),
+      const updated: any = await this.userService.updateMe({
+        email: this.email,
+        name: this.fullName.trim(),
+        phone: normalized,
         bio: this.bio.trim(),
+        avatarUrl: this.photoUrl || null,
+
+        specialty: this.specialty.trim(),
         companyName: this.companyName.trim(),
         companyRole: this.companyRole.trim(),
         companyDescription: this.companyDescription.trim(),
       });
 
+      this.phone = (updated && (updated as any).phone) ? (updated as any).phone : normalized;
       alert('Perfil actualizado.');
     } catch (e) {
       console.error(e);
-      alert('No se pudo guardar. Revisa permisos/reglas.');
+      alert('No se pudo guardar. Revisa permisos/reglas y el backend.');
     } finally {
       this.saving = false;
     }
