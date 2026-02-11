@@ -97,7 +97,7 @@ export class Schedule implements OnInit {
       const datetime = selected.toISOString();
 
       await this.appointmentService.createAppointment({
-        programmerId: this.selectedProgrammer, // docId = email del programador
+        programmerId: this.selectedProgrammer, // UUID del programador
         userEmail: this.user!.email,
         userId: this.user!.id,
         datetime,

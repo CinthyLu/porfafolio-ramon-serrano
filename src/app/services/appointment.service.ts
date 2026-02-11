@@ -9,16 +9,14 @@ import { environment } from '../../environments/environment';
 export class AppointmentService {
   private http = inject(HttpClient);
   private comm = inject(CommunicationService);
-  private apiUrl = `${environment.apiUrl}/advisories`;
+  private apiUrl = `${environment.apiUrl}/external/advisories`;
 
   async createAppointment(a: Appointment): Promise<Appointment> {
     const appointment = await firstValueFrom(
       this.http.post<Appointment>(this.apiUrl, {
         programmerId: a.programmerId,
-        userEmail: a.userEmail,
-        datetime: a.datetime,
-        comment: a.comment,
-        userId: a.userId
+        scheduledAt: a.datetime,
+        comment: a.comment
       })
     );
     

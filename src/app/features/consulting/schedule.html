@@ -37,7 +37,7 @@
         <select [(ngModel)]="selectedProgrammer" name="programmer" required #progCtrl="ngModel"
           [class.is-invalid]="progCtrl.invalid && progCtrl.touched">
           <option value="">-- Seleccionar --</option>
-          <option *ngFor="let p of programmers" [value]="p.email">
+          <option *ngFor="let p of programmers" [value]="p.id">
             {{ p.fullName || p.name || p.email }} — {{ getLabel(p) }}
           </option>
         </select>
