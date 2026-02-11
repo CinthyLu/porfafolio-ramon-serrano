@@ -32,7 +32,8 @@ export class Login implements OnInit {
         client_id: '320854215368-h2jrnsaglbup26ghhik7h5kck64s3hv6.apps.googleusercontent.com',
         callback: (response: any) => this.handleGoogleResponse(response),
         auto_select: false,
-        cancel_on_tap_outside: true
+        cancel_on_tap_outside: true,
+        use_fedcm_for_prompt: false
       });
       
       // Renderizar el botón de Google
