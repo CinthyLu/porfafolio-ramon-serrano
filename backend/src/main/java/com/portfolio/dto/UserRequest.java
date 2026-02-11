@@ -17,9 +17,7 @@ public class UserRequest {
     @Email(message = "Email inválido")
     private String email;
 
-    @NotBlank(message = "El nombre es requerido")
-    private String name;
-
+    private String name;  // Removed @NotBlank to make it optional
     private String phone;
     private String bio;
     private String avatarUrl;
