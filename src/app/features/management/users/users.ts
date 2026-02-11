@@ -150,10 +150,11 @@ clearSelection() {
       }
 
       await this.userService.createProgrammer({
-        fullName: this.fullName.trim(),
+        name: this.fullName.trim(),
         email: this.email.trim(),
-        specialty: this.specialty.trim(),
         bio: this.bio.trim(),
+        phone: this.specialty.trim(), // Usar specialty como phone temporalmente
+        avatarUrl: '',
         role: Role.Programmer,
       });
 

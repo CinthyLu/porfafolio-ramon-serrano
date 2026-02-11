@@ -8,26 +8,44 @@ import { environment } from '../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private http = inject(HttpClient);
-
-  // Viejo (Firestore u otros endpoints legacy)
   private apiUrl = `${environment.apiUrl}/users`;
-
-  // Nuevo backend (Spring Boot)
-  private apiBackendUrl = `${environment.apiUrl}`;
 
   // PERFIL (Spring Boot)
   getMe(): Promise<User> {
-    return firstValueFrom(this.http.get<User>(`${this.apiBackendUrl}/user/me`));
+    return firstValueFrom(this.http.get<User>(`${environment.apiUrl}/auth/me`));
   }
 
   updateMe(data: any): Promise<any> {
-    return firstValueFrom(this.http.put<any>(`${this.apiBackendUrl}/user/me`, data));
+    return firstValueFrom(this.http.put<any>(`${environment.apiUrl}/auth/me`, data));
   }
 
-  // LEGACY / FIRESTORE (si aún lo usas)
+  // Crear programador/usuario
   async createProgrammer(user: User): Promise<string> {
+    const payload = {
+      email: user.email,
+      name: user.name || user.email.split('@')[0],
+      phone: user.phone,
+      bio: user.bio,
+      avatarUrl: user.avatarUrl,
+      role: Role.Programmer
+    };
     const created = await firstValueFrom(
-      this.http.post<User>(this.apiUrl, { ...user, role: Role.Programmer })
+      this.http.post<User>(this.apiUrl, payload)
+    );
+    return created.email;
+  }
+
+  async createUser(user: User, role: Role = Role.User): Promise<string> {
+    const payload = {
+      email: user.email,
+      name: user.name || user.email.split('@')[0],
+      phone: user.phone,
+      bio: user.bio,
+      avatarUrl: user.avatarUrl,
+      role: role
+    };
+    const created = await firstValueFrom(
+      this.http.post<User>(this.apiUrl, payload)
     );
     return created.email;
   }
@@ -54,7 +72,7 @@ export class UserService {
 
   async listProgrammers(): Promise<User[]> {
     return await firstValueFrom(
-      this.http.get<User[]>(`${this.apiUrl}/role/${Role.Programmer}`)
+      this.http.get<User[]>(`${this.apiUrl}/role/PROGRAMMER`)
     );
   }
 
@@ -62,9 +80,9 @@ export class UserService {
     return await firstValueFrom(this.http.get<User[]>(this.apiUrl));
   }
 
-  async updateUserRole(emailDocId: string, role: Role): Promise<void> {
+  async updateUserRole(email: string, role: Role): Promise<void> {
     await firstValueFrom(
-      this.http.put(`${this.apiUrl}/email/${emailDocId}/role`, { role })
+      this.http.put(`${this.apiUrl}/email/${email}/role`, { role })
     );
   }
 
