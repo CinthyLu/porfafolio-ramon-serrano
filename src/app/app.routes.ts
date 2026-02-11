@@ -11,6 +11,7 @@ import { Schedule } from './features/consulting/schedule';
 import { Upmedia } from './upmedia/upmedia';
 import { Appointments } from './features/management/appointments/appointments';
 import { AdminDashboard } from './features/management/admin-dashboard/admin-dashboard';
+import { Advisories } from './features/management/advisories/advisories';
 import { Role } from './models/role.enum';
 import { RoleGuard } from './guards/role.guard';
 import { AuthGuard } from './guards/auth.guard';
@@ -41,6 +42,12 @@ export const routes: Routes = [
   {
     path: 'admin/dashboard',
     component: AdminDashboard,
+    canActivate: [RoleGuard],
+    data: { roles: Role.Admin }
+  },
+  {
+    path: 'admin/advisories',
+    component: Advisories,
     canActivate: [RoleGuard],
     data: { roles: Role.Admin }
   },

@@ -24,6 +24,7 @@ export class Schedule implements OnInit {
   submitting = false;
 
   loading = true;
+  error: string | null = null;
   user: User | null = null;
 
   constructor(
@@ -39,7 +40,7 @@ export class Schedule implements OnInit {
     // ⏳ ESPERAMOS a que Firebase cargue el usuario
     await this.auth.waitUntilReady();
     this.user = this.auth.currentUser;
-   this.minDate = this.toMinDateISO();
+    this.minDate = this.toMinDateISO();
 
     console.log('[schedule] Usuario cargado:', this.user);
 
@@ -53,9 +54,22 @@ export class Schedule implements OnInit {
     }
 
     // ✔️ YA HAY USUARIO → cargar programadores
-    this.programmers = await this.userService.listProgrammers();
-
-    this.loading = false;
+    try {
+      console.log('[schedule] Cargando programadores...');
+      this.programmers = await this.userService.listProgrammers();
+      console.log('[schedule] Programadores cargados:', this.programmers);
+      
+      if (this.programmers.length === 0) {
+        this.error = 'No hay programadores disponibles en este momento.';
+        this.showNotification(this.error ?? 'No hay programadores', 'error');
+      }
+    } catch (e: any) {
+      console.error('[schedule] Error cargando programadores:', e);
+      this.error = e?.error?.message || 'Error al cargar programadores. Intenta nuevamente.';
+      this.showNotification(this.error ?? 'Error cargando programadores', 'error');
+    } finally {
+      this.loading = false;
+    }
   }
 
   async submit() {

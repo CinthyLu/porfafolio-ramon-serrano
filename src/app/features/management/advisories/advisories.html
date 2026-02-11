@@ -1,0 +1,151 @@
+<div class="advisories-container panel-admin">
+  <h1>📅 Control de Asesorías</h1>
+  <p>Gestiona todas tus asesorías programadas</p>
+
+  <!-- Notifications -->
+  <div class="notification" *ngIf="notification.visible" [ngClass]="notification.type">
+    {{ notification.message }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <p>Cargando asesorías...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="error-message">
+    <p>❌ {{ error }}</p>
+    <button class="btn btn-primary" (click)="loadAdvisories()">Reintentar</button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error" class="content">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="filters">
+        <label>Filtrar por estado:</label>
+        <select [(ngModel)]="filterStatus" (change)="loadAdvisories()">
+          <option value="all">Todas</option>
+          <option value="PENDING">Pendientes</option>
+          <option value="SCHEDULED">Programadas</option>
+          <option value="APPROVED">Aprobadas</option>
+          <option value="REJECTED">Rechazadas</option>
+          <option value="COMPLETED">Completadas</option>
+        </select>
+      </div>
+
+      <!-- Export Buttons (ADMIN only) -->
+      <div *ngIf="isAdmin" class="export-buttons">
+        <button class="btn btn-secondary" (click)="downloadReport('pdf')">
+          📄 Descargar PDF
+        </button>
+        <button class="btn btn-secondary" (click)="downloadReport('excel')">
+          📊 Descargar Excel
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabla de Asesorías -->
+    <div *ngIf="getFilteredAdvisories().length > 0" class="advisories-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Programador</th>
+            <th>Usuario</th>
+            <th>Fecha/Hora</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let adv of getFilteredAdvisories()" 
+              (click)="selectAdvisory(adv)"
+              [class.selected]="isSelected(adv)">
+            <td>{{ adv.programmername || adv.programmerId }}</td>
+            <td>{{ adv.externalName || adv.externalId }}</td>
+            <td>{{ adv.scheduledAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusColor(adv.status)">
+                {{ getStatusLabel(adv.status) }}
+              </span>
+            </td>
+            <td>
+              <div *ngIf="isSelected(adv)" class="action-buttons">
+                <button *ngIf="isProgrammer && adv.status === 'PENDING'" 
+                        class="btn btn-sm btn-success"
+                        (click)="approveAdvisory(adv); $event.stopPropagation()">
+                  ✓ Aprobar
+                </button>
+                <button *ngIf="isProgrammer && adv.status === 'PENDING'" 
+                        class="btn btn-sm btn-danger"
+                        (click)="rejectAdvisory(adv); $event.stopPropagation()">
+                  ✗ Rechazar
+                </button>
+              </div>
+              <div *ngIf="!isSelected(adv)">-</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="getFilteredAdvisories().length === 0" class="empty-state">
+      <p>📭 No hay asesorías con este filtro</p>
+    </div>
+
+    <!-- Detail Panel (cuando está seleccionada) -->
+    <div *ngIf="selectedAdvisory" class="detail-panel">
+      <h3>Detalles de la Asesoría</h3>
+      
+      <div class="detail-row">
+        <strong>Programador:</strong>
+        <span>{{ selectedAdvisory.programmername || selectedAdvisory.programmerId }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <strong>Usuario:</strong>
+        <span>{{ selectedAdvisory.externalName || selectedAdvisory.externalId }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <strong>Fecha/Hora:</strong>
+        <span>{{ selectedAdvisory.scheduledAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <strong>Estado:</strong>
+        <span class="status-badge" [ngClass]="getStatusColor(selectedAdvisory.status)">
+          {{ getStatusLabel(selectedAdvisory.status) }}
+        </span>
+      </div>
+      
+      <div *ngIf="selectedAdvisory.requestComment" class="detail-row">
+        <strong>Comentario del usuario:</strong>
+        <p>{{ selectedAdvisory.requestComment }}</p>
+      </div>
+      
+      <div *ngIf="selectedAdvisory.responseMessage" class="detail-row">
+        <strong>Respuesta del programador:</strong>
+        <p>{{ selectedAdvisory.responseMessage }}</p>
+      </div>
+
+      <!-- Reject Form (cuando está pendiente) -->
+      <div *ngIf="isProgrammer && selectedAdvisory.status === 'PENDING'" class="reject-form">
+        <label>Mensaje de rechazo (opcional):</label>
+        <textarea [(ngModel)]="responseMessage" 
+                  placeholder="Explicar por qué no puedes atender..."></textarea>
+        <button class="btn btn-danger" 
+                [disabled]="responding"
+                (click)="rejectAdvisory(selectedAdvisory)">
+          Rechazar Asesoría
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" routerLink="/">Volver a Home</button>
+  </div>
+</div>

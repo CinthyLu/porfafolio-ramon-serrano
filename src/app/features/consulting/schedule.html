@@ -12,32 +12,42 @@
 <!-- Contenido -->
 <div *ngIf="!loading" class="schedule-wrapper">
 
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-alert">
+    <strong>⚠️ Aviso:</strong> {{ error }}
+  </div>
+
   <div class="schedule-card">
 
     <h2 class="title">Agendar Asesoría</h2>
 
-    <form #f="ngForm" (ngSubmit)="submit()">
+    <!-- Si no hay programadores -->
+    <div *ngIf="programmers.length === 0 && !loading" class="empty-state">
+      <p>📭 No hay programadores disponibles en este momento.</p>
+      <p>Por favor, intenta más tarde.</p>
+      <button class="btn-secondary" routerLink="/">Volver</button>
+    </div>
+
+    <!-- Formulario -->
+    <form *ngIf="programmers.length > 0" #f="ngForm" (ngSubmit)="submit()">
 
       <!-- Programador -->
       <div class="form-group">
         <label>Seleccionar Programador</label>
         <select [(ngModel)]="selectedProgrammer" name="programmer" required #progCtrl="ngModel"
-  [class.is-invalid]="progCtrl.invalid && progCtrl.touched">
+          [class.is-invalid]="progCtrl.invalid && progCtrl.touched">
           <option value="">-- Seleccionar --</option>
-         <option *ngFor="let p of programmers" [value]="p.email">
-  {{ p.fullName }} — {{ getLabel(p) }}
-</option>
-
+          <option *ngFor="let p of programmers" [value]="p.email">
+            {{ p.fullName || p.name || p.email }} — {{ getLabel(p) }}
+          </option>
         </select>
         <small class="error" *ngIf="progCtrl.invalid && progCtrl.touched">Selecciona un programador</small>
-
-
       </div>
 
       <!-- Fecha -->
       <div class="form-group">
         <label>Fecha</label>
-       <input type="date" [(ngModel)]="date" name="date" [min]="minDate" required />
+        <input type="date" [(ngModel)]="date" name="date" [min]="minDate" required />
       </div>
 
       <!-- Hora -->
@@ -54,9 +64,9 @@
 
       <!-- Botón -->
       <div class="form-actions">
-       <button type="submit" [disabled]="submitting || !selectedProgrammer || !date || !time">
-  {{ submitting ? 'Enviando...' : 'Enviar solicitud' }}
-</button>
+        <button type="submit" [disabled]="submitting || !selectedProgrammer || !date || !time">
+          {{ submitting ? 'Enviando...' : 'Enviar solicitud' }}
+        </button>
       </div>
 
     </form>
