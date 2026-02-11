@@ -2,7 +2,12 @@
 
   <div class="appointments-card">
 
-    <h2 class="title">Solicitudes de Asesoría</h2>
+    <div class="header-section">
+      <h2 class="title">Solicitudes de Asesoría</h2>
+      <button class="btn-availability" routerLink="/availability">
+        📅 Gestionar Disponibilidad
+      </button>
+    </div>
 
     <!-- LOADING -->
     <div *ngIf="loading" class="loading-wrapper">

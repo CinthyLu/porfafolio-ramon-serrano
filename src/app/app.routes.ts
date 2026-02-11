@@ -17,6 +17,7 @@ import { RoleGuard } from './guards/role.guard';
 import { AuthGuard } from './guards/auth.guard';
 import { Profile } from './features/profile/profile';
 import { MyAppointments } from './features/management/users/my-appointments/my-appointments';
+import { AvailabilityManagement } from './features/management/availability/availability';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -81,6 +82,12 @@ export const routes: Routes = [
   {
     path: 'appointments',
     component: Appointments,
+    canActivate: [RoleGuard],
+    data: { roles: Role.Programmer }
+  },
+  {
+    path: 'availability',
+    component: AvailabilityManagement,
     canActivate: [RoleGuard],
     data: { roles: Role.Programmer }
   },

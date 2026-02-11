@@ -1,0 +1,137 @@
+<div class="availability-container">
+  <div class="header">
+    <h1>Gestión de Disponibilidad</h1>
+    <p>Configure sus horarios de atención para asesorías</p>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Botón crear -->
+  <div class="actions" *ngIf="!showForm">
+    <button class="btn btn-primary" (click)="openCreateForm()">
+      ➕ Agregar Disponibilidad
+    </button>
+  </div>
+
+  <!-- Formulario -->
+  <div class="form-card" *ngIf="showForm">
+    <h2>{{ editingId ? 'Editar' : 'Nueva' }} Disponibilidad</h2>
+    
+    <form (ngSubmit)="submitForm()">
+      <div class="form-group">
+        <label for="dayOfWeek">Día de la semana *</label>
+        <select 
+          id="dayOfWeek" 
+          [(ngModel)]="formData.dayOfWeek" 
+          name="dayOfWeek"
+          required
+          class="form-control">
+          <option *ngFor="let day of daysOfWeek" [value]="day">
+            {{ getDayName(day) }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startTime">Hora de inicio *</label>
+          <input 
+            type="time" 
+            id="startTime" 
+            [(ngModel)]="formData.startTime"
+            name="startTime"
+            required
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="endTime">Hora de fin *</label>
+          <input 
+            type="time" 
+            id="endTime" 
+            [(ngModel)]="formData.endTime"
+            name="endTime"
+            required
+            class="form-control">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancelForm()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary">
+          {{ editingId ? 'Actualizar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loader -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Cargando disponibilidades...</p>
+  </div>
+
+  <!-- Lista de disponibilidades -->
+  <div *ngIf="!loading && !showForm" class="availability-list">
+    <div *ngIf="availabilities.length === 0" class="empty-state">
+      <p>No hay disponibilidades configuradas</p>
+      <p class="hint">Agregue sus horarios de atención para que los usuarios puedan agendar asesorías</p>
+    </div>
+
+    <div class="availability-grid" *ngIf="availabilities.length > 0">
+      <div 
+        *ngFor="let availability of availabilities" 
+        class="availability-card"
+        [class.inactive]="!availability.isActive">
+        
+        <div class="card-header">
+          <h3>{{ getDayName(availability.dayOfWeek) }}</h3>
+          <span class="badge" [class.active]="availability.isActive">
+            {{ availability.isActive ? 'Activa' : 'Inactiva' }}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <div class="time-info">
+            <div class="time-row">
+              <span class="label">Desde:</span>
+              <span class="value">{{ formatTime(availability.startTime) }}</span>
+            </div>
+            <div class="time-row">
+              <span class="label">Hasta:</span>
+              <span class="value">{{ formatTime(availability.endTime) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button 
+            class="btn btn-sm btn-edit" 
+            (click)="openEditForm(availability)"
+            title="Editar">
+            ✏️ Editar
+          </button>
+          <button 
+            class="btn btn-sm btn-delete" 
+            (click)="deleteAvailability(availability.id)"
+            title="Eliminar">
+            🗑️ Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Volver -->
+  <div class="back-link" *ngIf="!showForm">
+    <a routerLink="/appointments">← Volver a mis asesorías</a>
+  </div>
+</div>

@@ -35,13 +35,24 @@
       <div class="form-group">
         <label>Seleccionar Programador</label>
         <select [(ngModel)]="selectedProgrammer" name="programmer" required #progCtrl="ngModel"
-          [class.is-invalid]="progCtrl.invalid && progCtrl.touched">
+          [class.is-invalid]="progCtrl.invalid && progCtrl.touched"
+          (change)="onProgrammerChange()">
           <option value="">-- Seleccionar --</option>
           <option *ngFor="let p of programmers" [value]="p.id">
             {{ p.fullName || p.name || p.email }} — {{ getLabel(p) }}
           </option>
         </select>
         <small class="error" *ngIf="progCtrl.invalid && progCtrl.touched">Selecciona un programador</small>
+      </div>
+
+      <!-- Información de disponibilidad -->
+      <div *ngIf="loadingAvailabilities" class="availability-loading">
+        <div class="mini-spinner"></div>
+        <span>Cargando horarios disponibles...</span>
+      </div>
+
+      <div *ngIf="availabilityInfo && !loadingAvailabilities" class="availability-info">
+        <pre>{{ availabilityInfo }}</pre>
       </div>
 
       <!-- Fecha -->
