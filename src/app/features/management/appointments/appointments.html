@@ -4,9 +4,33 @@
 
     <div class="header-section">
       <h2 class="title">Solicitudes de Asesoría</h2>
-      <button class="btn-availability" routerLink="/availability">
-        📅 Gestionar Disponibilidad
-      </button>
+      <div class="header-actions">
+        <button class="btn-availability" routerLink="/availability">
+          📅 Gestionar Disponibilidad
+        </button>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="notification" *ngIf="notification.visible" [ngClass]="notification.type">
+      {{ notification.message }}
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <label>Estado:</label>
+      <select [(ngModel)]="filterStatus" (change)="loadAdvisories()">
+        <option value="all">Todas</option>
+        <option value="PENDING">Pendientes</option>
+        <option value="APPROVED">Aprobadas</option>
+        <option value="REJECTED">Rechazadas</option>
+        <option value="COMPLETED">Completadas</option>
+      </select>
+
+      <div class="export-buttons">
+        <button class="btn-secondary" (click)="downloadReport('pdf')">📄 PDF</button>
+        <button class="btn-secondary" (click)="downloadReport('excel')">📊 Excel</button>
+      </div>
     </div>
 
     <!-- LOADING -->
@@ -16,7 +40,7 @@
     </div>
 
     <!-- TABLA CON DATOS -->
-    <table class="styled-table" *ngIf="!loading && appointments.length > 0">
+    <table class="styled-table" *ngIf="!loading && advisories.length > 0">
       <thead>
         <tr>
           <th>Solicitante</th>
@@ -28,49 +52,48 @@
       </thead>
 
       <tbody>
-        <tr *ngFor="let a of appointments">
-          <td class="email-cell">{{ a.userEmail || 'Anónimo' }}</td>
+        <tr *ngFor="let a of getFilteredAdvisories()" (click)="selectAdvisory(a)" [class.selected]="isSelected(a)">
+          <td class="email-cell">{{ a.externalName || a.externalId || 'Anónimo' }}</td>
 
-          <td>{{ a.datetime | date : 'short' }}</td>
+          <td>{{ a.scheduledAt | date : 'dd/MM/yyyy HH:mm' }}</td>
 
-          <td class="comment">{{ a.comment || '—' }}</td>
+          <td class="comment">{{ a.requestComment || '—' }}</td>
 
           <td>
-            <span
-              class="status"
-              [ngClass]="{
-                'pending': a.status === 'pending',
-                'approved': a.status === 'approved',
-                'rejected': a.status === 'rejected'
-              }"
-            >
-              {{ a.status | titlecase }}
+            <span class="status-badge" [ngClass]="getStatusColor(a.status)">
+              {{ getStatusLabel(a.status) }}
             </span>
           </td>
-<td>{{ a.responseMessage || '—' }}</td>
+
           <td class="actions">
-            <button
-              *ngIf="a.status === 'pending'"
-              class="btn-approve"
-              (click)="respond(a.id, true)"
-            >
-              Aprobar
+            <button *ngIf="a.status === 'PENDING'" class="btn-approve" (click)="approve(a); $event.stopPropagation()">
+              ✓ Aprobar
             </button>
 
-            <button
-              *ngIf="a.status === 'pending'"
-              class="btn-reject"
-              (click)="respond(a.id, false)"
-            >
-              Rechazar
+            <button *ngIf="a.status === 'PENDING'" class="btn-reject" (click)="reject(a); $event.stopPropagation()">
+              ✗ Rechazar
             </button>
+
+            <button *ngIf="a.status === 'APPROVED'" class="btn-approve" (click)="complete(a); $event.stopPropagation()">
+              ✓ Completar
+            </button>
+
+            <span *ngIf="a.responseMessage" class="response-msg">
+              {{ a.responseMessage }}
+            </span>
           </td>
         </tr>
       </tbody>
     </table>
 
+    <!-- Response Message Input -->
+    <div *ngIf="selectedAdvisory && selectedAdvisory.status === 'PENDING'" class="response-form">
+      <label>Mensaje de respuesta (opcional):</label>
+      <textarea [(ngModel)]="responseMessage" placeholder="Mensaje para el solicitante..."></textarea>
+    </div>
+
     <!-- EMPTY STATE -->
-    <div *ngIf="!loading && appointments.length === 0" class="empty-state">
+    <div *ngIf="!loading && advisories.length === 0" class="empty-state">
       No tienes solicitudes por ahora.
     </div>
 

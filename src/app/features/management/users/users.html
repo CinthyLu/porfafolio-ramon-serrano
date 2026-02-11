@@ -49,7 +49,7 @@
               </button>
 
               <button *ngIf="isAdmin" class="btn btn-sm" type="button"
-                (click)="deleteUser(u.email); $event.stopPropagation()">
+                (click)="deleteUser(u); $event.stopPropagation()">
                 Eliminar
               </button>
             </div>

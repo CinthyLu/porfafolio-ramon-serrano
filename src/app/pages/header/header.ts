@@ -10,16 +10,16 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './header.scss',
 })
 export class Header implements OnInit {
-    role: string | null = null;
-    fullName: string | null = null;
-    email: string | null = null;
+  role: string | null = null;
+  fullName: string | null = null;
+  email: string | null = null;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router) { }
 
   ngOnInit() {
     this.auth.user$.subscribe(u => {
       this.role = u?.role || null;
-      this.fullName = u?.fullName || null;
+      this.fullName = u?.name || u?.fullName || null;
       this.email = u?.email || null;
     });
   }

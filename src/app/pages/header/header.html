@@ -1,24 +1,16 @@
 <!-- Navigation Bar -->
-<nav
-  class="navbar"
-  [ngClass]="{
+<nav class="navbar" [ngClass]="{
     'nav-admin': isAdmin(),
     'nav-programmer': isProgrammer(),
     'nav-user': isUser() || !isLoggedIn()
-  }"
->
+  }">
   <div class="nav-container">
     <h1>DevFusion</h1>
 
     <ul class="nav-links">
       <li>
-        <a
-          class="nav-link"
-          routerLink="/"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: true }"
-          >Inicio</a
-        >
+        <a class="nav-link" routerLink="/" routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
       </li>
 
       <li>
@@ -26,8 +18,9 @@
       </li>
 
       <li *ngIf="!isLoggedIn() || isUser()">
-  <a class="nav-link" routerLink="/consulting" routerLinkActive="active">Consultoría</a>
-</li>
+        <a class="nav-link" routerLink="/consulting" routerLinkActive="active">Consultoría</a>
+      </li>
+
       <!-- USER -->
       <li *ngIf="isUser()">
         <a class="nav-link" routerLink="/my-appointments" routerLinkActive="active">Mis Solicitudes</a>
@@ -35,23 +28,36 @@
 
       <!-- PROGRAMMER -->
       <li *ngIf="isProgrammer()">
+        <a class="nav-link" routerLink="/programmer/dashboard" routerLinkActive="active">Dashboard</a>
+      </li>
+      <li *ngIf="isProgrammer()">
+        <a class="nav-link" routerLink="/my-projects" routerLinkActive="active">Mis Proyectos</a>
+      </li>
+      <li *ngIf="isProgrammer()">
         <a class="nav-link" routerLink="/appointments" routerLinkActive="active">Mis Asesorías</a>
+      </li>
+      <li *ngIf="isProgrammer()">
+        <a class="nav-link" routerLink="/availability" routerLinkActive="active">Disponibilidad</a>
       </li>
 
       <!-- ADMIN -->
       <li *ngIf="isAdmin()">
-        <a class="nav-link" routerLink="/users" routerLinkActive="active">Admin: Usuarios</a>
+        <a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active">Dashboard</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a class="nav-link" routerLink="/users" routerLinkActive="active">Usuarios</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a class="nav-link" routerLink="/admin/advisories" routerLinkActive="active">Asesorías</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a class="nav-link" routerLink="/portfolio" routerLinkActive="active">Portafolio</a>
       </li>
 
       <!-- PERFIL (icono) -->
       <li *ngIf="isLoggedIn()">
-        <a
-          class="nav-link user-icon"
-          routerLink="/profile"
-          routerLinkActive="active"
-          aria-label="Mi perfil"
-          title="Mi perfil"
-        >
+        <a class="nav-link user-icon" routerLink="/profile" routerLinkActive="active" aria-label="Mi perfil"
+          title="Mi perfil">
           <span class="icon-circle">{{ displayName()?.charAt(0) || 'U' }}</span>
         </a>
       </li>

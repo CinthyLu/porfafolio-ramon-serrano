@@ -1,0 +1,105 @@
+<div class="programmer-dashboard panel-programmer">
+    <h1>📊 Mi Dashboard</h1>
+    <p>Visualiza tus estadísticas personales</p>
+
+    <div *ngIf="loading" class="loading">
+        <p>Cargando estadísticas...</p>
+    </div>
+
+    <div *ngIf="error" class="error-message">
+        <p>❌ {{ error }}</p>
+        <button class="btn btn-primary" (click)="loadDashboard()">Reintentar</button>
+    </div>
+
+    <div *ngIf="!loading && stats" class="dashboard-content">
+        <!-- Tarjetas de estadísticas -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <h3>Mis Proyectos</h3>
+                <div class="stat-value">{{ stats.totalProjects || 0 }}</div>
+                <p class="stat-label">Proyectos registrados</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Asesorías Totales</h3>
+                <div class="stat-value">{{ stats.totalAdvisories || 0 }}</div>
+                <p class="stat-label">Asesorías recibidas</p>
+            </div>
+
+            <div class="stat-card highlight">
+                <h3>Asesorías Completadas</h3>
+                <div class="stat-value success">{{ stats.completedAdvisories || 0 }}</div>
+                <p class="stat-label">{{ getPercentage(stats.completedAdvisories, stats.totalAdvisories) }}%</p>
+            </div>
+
+            <div class="stat-card highlight">
+                <h3>Asesorías Pendientes</h3>
+                <div class="stat-value warning">{{ stats.pendingAdvisories || 0 }}</div>
+                <p class="stat-label">Requieren atención</p>
+            </div>
+        </div>
+
+        <!-- Estado de asesorías -->
+        <div *ngIf="stats.advisoryCountByStatus" class="section">
+            <h2>Estado de Asesorías</h2>
+            <div class="status-grid">
+                <div *ngFor="let status of (stats.advisoryCountByStatus | keyvalue)" class="status-item">
+                    <span class="status-name">{{ status.key }}</span>
+                    <span class="status-count">{{ status.value }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tecnologías -->
+        <div *ngIf="stats.topTechnologies?.length" class="section">
+            <h2>Mis Tecnologías</h2>
+            <div class="tech-list">
+                <div *ngFor="let tech of stats.topTechnologies" class="tech-item">
+                    <div class="tech-bar">
+                        <div class="tech-fill"
+                            [style.width.%]="(tech.count / (stats.topTechnologies[0]?.count || 1)) * 100">
+                            {{ tech.technology }}
+                        </div>
+                    </div>
+                    <span class="tech-count">{{ tech.count }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Descargar Reportes -->
+        <div class="section">
+            <h2>📥 Descargar Reportes</h2>
+            <div class="report-buttons">
+                <button class="btn btn-secondary" (click)="downloadReport('advisories', 'pdf')">
+                    📄 Asesorías PDF
+                </button>
+                <button class="btn btn-secondary" (click)="downloadReport('advisories', 'excel')">
+                    📊 Asesorías Excel
+                </button>
+                <button class="btn btn-secondary" (click)="downloadReport('projects', 'pdf')">
+                    📁 Proyectos PDF
+                </button>
+                <button class="btn btn-secondary" (click)="downloadReport('projects', 'excel')">
+                    📁 Proyectos Excel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones rápidas -->
+    <div class="quick-actions">
+        <h3>Acciones Rápidas</h3>
+        <button class="btn btn-primary" routerLink="/my-projects">
+            📁 Mis Proyectos
+        </button>
+        <button class="btn btn-secondary" routerLink="/appointments">
+            📅 Mis Asesorías
+        </button>
+        <button class="btn btn-secondary" routerLink="/availability">
+            🕐 Mi Disponibilidad
+        </button>
+        <button class="btn btn-secondary" routerLink="/">
+            🏠 Volver a Home
+        </button>
+    </div>
+</div>

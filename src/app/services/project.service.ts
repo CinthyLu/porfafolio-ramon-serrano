@@ -7,35 +7,59 @@ import { environment } from '../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/projects`;
 
-  async createProject(p: Project & { programmerId: string }): Promise<Project> {
+  // ====== PROGRAMMER ENDPOINTS ======
+
+  /** Listar mis proyectos (programador autenticado) */
+  async listMyProjects(): Promise<Project[]> {
+    const response = await firstValueFrom(
+      this.http.get<any>(`${environment.apiUrl}/programmer/projects`)
+    );
+    return response.content || response || [];
+  }
+
+  /** Obtener proyecto por ID */
+  async getProject(id: string): Promise<Project> {
     return await firstValueFrom(
-      this.http.post<Project>(this.apiUrl, p)
+      this.http.get<Project>(`${environment.apiUrl}/programmer/projects/${id}`)
     );
   }
 
-  async listByProgrammer(programmerId: string): Promise<Project[]> {
+  /** Crear proyecto (programador autenticado) */
+  async createProject(p: Partial<Project>): Promise<Project> {
     return await firstValueFrom(
-      this.http.get<Project[]>(`${this.apiUrl}/programmer/${programmerId}`)
+      this.http.post<Project>(`${environment.apiUrl}/programmer/projects`, p)
     );
   }
 
-  async updateProject(id: string, data: Partial<Project>): Promise<void> {
-    await firstValueFrom(
-      this.http.put(`${this.apiUrl}/${id}`, data)
+  /** Actualizar proyecto */
+  async updateProject(id: string, data: Partial<Project>): Promise<Project> {
+    return await firstValueFrom(
+      this.http.put<Project>(`${environment.apiUrl}/programmer/projects/${id}`, data)
     );
   }
 
+  /** Eliminar proyecto */
   async deleteProject(id: string): Promise<void> {
     await firstValueFrom(
-      this.http.delete(`${this.apiUrl}/${id}`)
+      this.http.delete(`${environment.apiUrl}/programmer/projects/${id}`)
     );
   }
 
-  async getAllProjects(): Promise<Project[]> {
+  // ====== PUBLIC ENDPOINTS ======
+
+  /** Obtener portafolio público de un programador */
+  async getPublicPortfolio(programmerId: string): Promise<any> {
     return await firstValueFrom(
-      this.http.get<Project[]>(this.apiUrl)
+      this.http.get<any>(`${environment.apiUrl}/public/programmers/${programmerId}/portfolio`)
     );
+  }
+
+  /** Listar programadores públicos */
+  async listPublicProgrammers(): Promise<any[]> {
+    const response = await firstValueFrom(
+      this.http.get<any>(`${environment.apiUrl}/public/programmers`)
+    );
+    return response.content || response || [];
   }
 }

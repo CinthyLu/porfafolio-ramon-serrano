@@ -18,6 +18,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { Profile } from './features/profile/profile';
 import { MyAppointments } from './features/management/users/my-appointments/my-appointments';
 import { AvailabilityManagement } from './features/management/availability/availability';
+import { ProgrammerDashboard } from './features/management/programmer-dashboard/programmer-dashboard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -73,6 +74,12 @@ export const routes: Routes = [
   { path: 'portfolio/:id', component: Upmedia },
 
   // PROGRAMADOR
+  {
+    path: 'programmer/dashboard',
+    component: ProgrammerDashboard,
+    canActivate: [RoleGuard],
+    data: { roles: Role.Programmer }
+  },
   {
     path: 'my-projects',
     component: MyProjects,

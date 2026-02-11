@@ -1,12 +1,17 @@
 <div class="my-projects panel-programmer">
   <h2>Mis Proyectos</h2>
 
+  <!-- Notifications -->
+  <div class="notification" *ngIf="notification.visible" [ngClass]="notification.type">
+    {{ notification.message }}
+  </div>
+
   <div class="project-form">
     <label>Nombre</label>
-    <input [(ngModel)]="name" name="name" />
+    <input [(ngModel)]="name" name="name" placeholder="Nombre del proyecto" />
 
     <label>Descripción</label>
-    <textarea [(ngModel)]="description" name="description"></textarea>
+    <textarea [(ngModel)]="description" name="description" placeholder="Describe tu proyecto"></textarea>
 
     <label>Categoría</label>
     <select [(ngModel)]="category" name="category">
@@ -20,16 +25,17 @@
       <option>Backend</option>
       <option>Base de Datos</option>
       <option>Fullstack</option>
+      <option>DevOps</option>
     </select>
 
     <label>Tecnologías (separadas por coma)</label>
-    <input [(ngModel)]="technologies" name="technologies" />
+    <input [(ngModel)]="technologies" name="technologies" placeholder="Angular, Java, PostgreSQL" />
 
     <label>Repositorio</label>
-    <input [(ngModel)]="repoUrl" name="repoUrl" />
+    <input [(ngModel)]="repoUrl" name="repoUrl" placeholder="https://github.com/..." />
 
     <label>Deploy / Demo</label>
-    <input [(ngModel)]="deployUrl" name="deployUrl" />
+    <input [(ngModel)]="deployUrl" name="deployUrl" placeholder="https://mi-app.com" />
 
     <div class="form-actions">
       <button class="btn btn-primary" (click)="create()" [disabled]="loading">Crear Proyecto</button>
@@ -41,8 +47,18 @@
     <div *ngFor="let p of projects" class="project-card">
       <h4>{{p.name}}</h4>
       <p>{{p.description}}</p>
+      <p><strong>Categoría:</strong> {{p.category}} | <strong>Participación:</strong> {{p.participation}}</p>
       <p><strong>Tecnologías:</strong> {{p.technologies?.join(', ')}}</p>
-      <div class="actions"><button class="btn btn-sm" (click)="delete(p.id)">Eliminar</button></div>
+      <div class="project-links" *ngIf="p.repoUrl || p.deployUrl">
+        <a *ngIf="p.repoUrl" [href]="p.repoUrl" target="_blank">🔗 Repositorio</a>
+        <a *ngIf="p.deployUrl" [href]="p.deployUrl" target="_blank">🌐 Demo</a>
+      </div>
+      <div class="actions">
+        <button class="btn btn-sm btn-danger" (click)="delete(p.id)">🗑 Eliminar</button>
+      </div>
+    </div>
+    <div *ngIf="projects.length === 0" class="empty-state">
+      <p>No tienes proyectos. ¡Crea tu primer proyecto!</p>
     </div>
   </div>
 </div>

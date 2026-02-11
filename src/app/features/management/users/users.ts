@@ -33,23 +33,23 @@ export class Users implements OnInit {
 
   isAdmin = false;
 
-   constructor(
+  constructor(
     private userService: UserService,
     private authService: AuthService
-  ) {}
+  ) { }
 
-selectUser(u: User) {
-  this.selectedEmail = u.email;
-}
+  selectUser(u: User) {
+    this.selectedEmail = u.email;
+  }
 
-isSelected(u: User): boolean {
-  return this.selectedEmail === u.email;
-}
+  isSelected(u: User): boolean {
+    return this.selectedEmail === u.email;
+  }
 
-clearSelection() {
-  this.selectedEmail = null;
-}
-    async ngOnInit() {
+  clearSelection() {
+    this.selectedEmail = null;
+  }
+  async ngOnInit() {
     this.isAdmin = this.authService.currentUser?.role === Role.Admin;
     await this.loadUsers();
   }
@@ -94,12 +94,15 @@ clearSelection() {
     }
   }
 
-  async deleteUser(email: string | undefined) {
-    if (!email) return;
-    if (!confirm('¿Eliminar este usuario?')) return;
+  async deleteUser(user: User) {
+    if (!user?.id) {
+      alert('No se puede eliminar: usuario sin ID.');
+      return;
+    }
+    if (!confirm(`¿Eliminar al usuario ${user.email}?`)) return;
 
     try {
-      await this.userService.deleteUser(email);
+      await this.userService.deleteUser(user.id);
       await this.loadUsers();
     } catch (e) {
       console.error('Error deleting user', e);
@@ -107,7 +110,7 @@ clearSelection() {
     }
   }
 
-  
+
   startEdit(u: any) {
     this.editingId = u.email || null;
     this.fullName = u.fullName || '';

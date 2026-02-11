@@ -34,7 +34,7 @@ export class Profile implements OnInit {
     private authService: AuthService,
     private userService: UserService,
     private router: Router
-  ) {}
+  ) { }
 
   async ngOnInit() {
     const cu = this.authService.currentUser;
@@ -108,17 +108,11 @@ export class Profile implements OnInit {
     try {
       this.saving = true;
 
-      const updated: any = await this.userService.updateMe({
-        email: this.email,
+      const updated: any = await this.userService.updateMyProfile(this.email, {
         name: this.fullName.trim(),
         phone: normalized,
         bio: this.bio.trim(),
         avatarUrl: this.photoUrl || null,
-
-        specialty: this.specialty.trim(),
-        companyName: this.companyName.trim(),
-        companyRole: this.companyRole.trim(),
-        companyDescription: this.companyDescription.trim(),
       });
 
       this.phone = (updated && (updated as any).phone) ? (updated as any).phone : normalized;

@@ -47,7 +47,7 @@ export class Schedule implements OnInit {
     private auth: AuthService,
     private router: Router,
     private http: HttpClient
-  ) {}
+  ) { }
 
   async ngOnInit() {
     console.log('[schedule] Iniciando Schedule...');
@@ -73,7 +73,7 @@ export class Schedule implements OnInit {
       console.log('[schedule] Cargando programadores...');
       this.programmers = await this.userService.listProgrammers();
       console.log('[schedule] Programadores cargados:', this.programmers);
-      
+
       if (this.programmers.length === 0) {
         this.error = 'No hay programadores disponibles en este momento.';
         this.showNotification(this.error ?? 'No hay programadores', 'error');
@@ -100,15 +100,15 @@ export class Schedule implements OnInit {
       this.showNotification('Fecha u hora inválida', 'error');
       return;
     }
-// Validar disponibilidad del programador
+    // Validar disponibilidad del programador
     const dayOfWeek = this.getDayOfWeekFromDate(selected);
     const timeStr = this.time + ':00';
-    
+
     if (this.programmerAvailabilities.length > 0) {
-      const isAvailable = this.programmerAvailabilities.some(avail => 
-        avail.dayOfWeek === dayOfWeek && 
+      const isAvailable = this.programmerAvailabilities.some(avail =>
+        avail.dayOfWeek === dayOfWeek &&
         avail.isActive &&
-        timeStr >= avail.startTime && 
+        timeStr >= avail.startTime &&
         timeStr <= avail.endTime
       );
 
@@ -123,10 +123,8 @@ export class Schedule implements OnInit {
     try {
       await this.appointmentService.createAppointment({
         programmerId: this.selectedProgrammer,
-        datetime: selected.toISOString(),
+        scheduledAt: selected.toISOString(),
         comment: this.comment?.trim(),
-        userEmail: this.user?.email || '',
-        status: 'pending'
       });
 
       this.showNotification('✅ Solicitud enviada correctamente', 'success');
@@ -149,18 +147,18 @@ export class Schedule implements OnInit {
   async onProgrammerChange() {
     this.availabilityInfo = '';
     this.programmerAvailabilities = [];
-    
+
     if (!this.selectedProgrammer) {
       return;
     }
 
     this.loadingAvailabilities = true;
-    
+
     try {
       // Obtener disponibilidades del programador desde el endpoint público
       const url = `${environment.apiUrl}/public/users/${this.selectedProgrammer}`;
       const programmer: any = await firstValueFrom(this.http.get(url));
-      
+
       if (programmer.availability && programmer.availability.length > 0) {
         this.programmerAvailabilities = programmer.availability;
         this.availabilityInfo = this.formatAvailabilityInfo(programmer.availability);
@@ -181,7 +179,7 @@ export class Schedule implements OnInit {
       .reduce((acc, avail) => {
         const dayName = DAY_NAMES[avail.dayOfWeek];
         const timeRange = `${this.formatTime(avail.startTime)} - ${this.formatTime(avail.endTime)}`;
-        
+
         if (!acc[dayName]) {
           acc[dayName] = [];
         }
@@ -189,11 +187,11 @@ export class Schedule implements OnInit {
         return acc;
       }, {} as Record<string, string[]>);
 
-    const lines = Object.entries(byDay).map(([day, ranges]) => 
+    const lines = Object.entries(byDay).map(([day, ranges]) =>
       `${day}: ${ranges.join(', ')}`
     );
 
-    return lines.length > 0 
+    return lines.length > 0
       ? '📅 Horarios disponibles:\n' + lines.join('\n')
       : '';
   }

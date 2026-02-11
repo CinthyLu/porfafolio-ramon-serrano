@@ -2,22 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgFor, NgIf, DatePipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
+import { AppointmentService, Advisory } from '../../../services/appointment.service';
 import { AuthService } from '../../../services/auth.service';
-import { Role } from '../../../models/role.enum';
-
-interface Advisory {
-  id: string;
-  programmerId: string;
-  externalId: string;
-  programmername?: string;
-  externalName?: string;
-  scheduledAt: string;
-  status: string;
-  requestComment?: string;
-  responseMessage?: string;
-}
 
 @Component({
   selector: 'app-advisories',
@@ -35,12 +21,15 @@ export class Advisories implements OnInit {
   filterStatus = 'all';
   selectedAdvisory: Advisory | null = null;
   responseMessage = '';
-  responding = false;
+
+  // Notificaciones
+  notification = { visible: false, message: '', type: '' };
+  private notificationTimeout: any;
 
   constructor(
-    private http: HttpClient,
+    private apptService: AppointmentService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   async ngOnInit() {
     this.isAdmin = this.authService.currentUser?.role === 'ADMIN';
@@ -51,10 +40,14 @@ export class Advisories implements OnInit {
   async loadAdvisories() {
     try {
       this.loading = true;
-      const url = `${environment.apiUrl}/admin/advisories`;
-      const data = await this.http.get<Advisory[]>(url).toPromise();
-      this.advisories = data || [];
-      console.log('[advisories] Loaded:', this.advisories);
+      this.error = null;
+      const status = this.filterStatus !== 'all' ? this.filterStatus : undefined;
+
+      if (this.isAdmin) {
+        this.advisories = await this.apptService.listAllAdvisories(status);
+      } else if (this.isProgrammer) {
+        this.advisories = await this.apptService.listProgrammerAdvisories(status);
+      }
     } catch (e: any) {
       console.error('[advisories] Error:', e);
       this.error = e?.error?.message || 'Error cargando asesorías';
@@ -79,66 +72,88 @@ export class Advisories implements OnInit {
   }
 
   async approveAdvisory(advisory: Advisory) {
+    if (!advisory.id) return;
     try {
-      const url = `${environment.apiUrl}/programmer/advisories/${advisory.id}/approve`;
-      await this.http.put(url, {}).toPromise();
+      await this.apptService.approveAdvisory(advisory.id, this.responseMessage);
       advisory.status = 'APPROVED';
-      this.showNotification('Asesoría aprobada', 'success');
+      this.responseMessage = '';
+      this.selectedAdvisory = null;
+      this.showNotification('✅ Asesoría aprobada', 'success');
     } catch (e) {
       this.showNotification('Error aprobando asesoría', 'error');
     }
   }
 
   async rejectAdvisory(advisory: Advisory) {
+    if (!advisory.id) return;
     try {
-      const url = `${environment.apiUrl}/programmer/advisories/${advisory.id}/reject`;
-      await this.http.put(url, { message: this.responseMessage }).toPromise();
+      await this.apptService.rejectAdvisory(advisory.id, this.responseMessage);
       advisory.status = 'REJECTED';
       this.responseMessage = '';
       this.selectedAdvisory = null;
-      this.showNotification('Asesoría rechazada', 'success');
+      this.showNotification('❌ Asesoría rechazada', 'success');
     } catch (e) {
       this.showNotification('Error rechazando asesoría', 'error');
     }
   }
 
+  async completeAdvisory(advisory: Advisory) {
+    if (!advisory.id) return;
+    try {
+      await this.apptService.completeAdvisory(advisory.id);
+      advisory.status = 'COMPLETED';
+      this.showNotification('✅ Asesoría completada', 'success');
+    } catch (e) {
+      this.showNotification('Error completando asesoría', 'error');
+    }
+  }
+
   async downloadReport(format: 'pdf' | 'excel') {
     try {
-      const url = format === 'pdf'
-        ? `${environment.apiUrl}/admin/reports/advisories/pdf`
-        : `${environment.apiUrl}/admin/reports/advisories/excel`;
-      
-      const data = await this.http.get(url, { responseType: 'blob' }).toPromise();
-      const blob = data as Blob;
-      const filename = format === 'pdf' ? 'asesorias.pdf' : 'asesorias.xlsx';
-      
+      let blob: Blob;
+      let filename: string;
+
+      if (this.isAdmin) {
+        blob = await this.apptService.downloadAdminAdvisoriesReport(format);
+        filename = format === 'pdf' ? 'asesorias-admin.pdf' : 'asesorias-admin.xlsx';
+      } else {
+        blob = await this.apptService.downloadProgrammerAdvisoriesReport(format);
+        filename = format === 'pdf' ? 'mis-asesorias.pdf' : 'mis-asesorias.xlsx';
+      }
+
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
       link.download = filename;
       link.click();
-      
+
       this.showNotification(`Reporte ${format.toUpperCase()} descargado`, 'success');
     } catch (e) {
       this.showNotification(`Error descargando reporte ${format}`, 'error');
     }
   }
 
-  notification = { visible: false, message: '', type: '' };
-  private notificationTimeout: any;
+  async downloadProjectReport(format: 'pdf' | 'excel') {
+    try {
+      let blob: Blob;
+      let filename: string;
 
-  private showNotification(
-    message: string,
-    type: 'info' | 'success' | 'error' = 'info',
-    duration = 3000
-  ) {
-    this.notification.message = message;
-    this.notification.type = type;
-    this.notification.visible = true;
-    clearTimeout(this.notificationTimeout);
-    this.notificationTimeout = setTimeout(
-      () => (this.notification.visible = false),
-      duration
-    );
+      if (this.isAdmin) {
+        blob = await this.apptService.downloadAdminProjectsReport(format);
+        filename = format === 'pdf' ? 'proyectos-admin.pdf' : 'proyectos-admin.xlsx';
+      } else {
+        blob = await this.apptService.downloadProgrammerProjectsReport(format);
+        filename = format === 'pdf' ? 'mis-proyectos.pdf' : 'mis-proyectos.xlsx';
+      }
+
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+
+      this.showNotification(`Reporte de proyectos ${format.toUpperCase()} descargado`, 'success');
+    } catch (e) {
+      this.showNotification(`Error descargando reporte de proyectos`, 'error');
+    }
   }
 
   getStatusColor(status: string): string {
@@ -161,5 +176,20 @@ export class Advisories implements OnInit {
       COMPLETED: 'Completada',
     };
     return labels[status] || status;
+  }
+
+  private showNotification(
+    message: string,
+    type: 'info' | 'success' | 'error' = 'info',
+    duration = 3000
+  ) {
+    this.notification.message = message;
+    this.notification.type = type;
+    this.notification.visible = true;
+    clearTimeout(this.notificationTimeout);
+    this.notificationTimeout = setTimeout(
+      () => (this.notification.visible = false),
+      duration
+    );
   }
 }

@@ -2,47 +2,60 @@
   <div class="appointments-card">
     <h2 class="title">Mis Solicitudes de Asesoría</h2>
 
+    <!-- Notifications -->
+    <div class="notification" *ngIf="notification.visible" [ngClass]="notification.type">
+      {{ notification.message }}
+    </div>
+
     <div *ngIf="loading" class="loading-wrapper">
       <div class="spinner"></div>
       <p>Cargando solicitudes...</p>
     </div>
 
-    <table class="styled-table" *ngIf="!loading && appointments.length > 0">
+    <table class="styled-table" *ngIf="!loading && advisories.length > 0">
       <thead>
         <tr>
           <th>Programador</th>
           <th>Fecha y Hora</th>
           <th>Comentario</th>
           <th>Estado</th>
+          <th>Acciones</th>
         </tr>
       </thead>
 
       <tbody>
-        <tr *ngFor="let a of appointments">
-          <td class="email-cell">{{ a.programmerId || '—' }}</td>
+        <tr *ngFor="let a of advisories">
+          <td class="email-cell">{{ a.programmerName || a.programmerId }}</td>
 
-          <td>{{ a.datetime | date : 'short' }}</td>
+          <td>{{ a.scheduledAt | date : 'dd/MM/yyyy HH:mm' }}</td>
 
-          <td class="comment">{{ a.comment || '—' }}</td>
+          <td class="comment">{{ a.requestComment || '—' }}</td>
 
           <td>
-            <span
-              class="status"
-              [ngClass]="{
-                'pending': a.status === 'pending',
-                'approved': a.status === 'approved',
-                'rejected': a.status === 'rejected'
-              }"
-            >
-              {{ a.status | titlecase }}
+            <span class="status-badge" [ngClass]="getStatusColor(a.status)">
+              {{ getStatusLabel(a.status) }}
             </span>
+          </td>
+
+          <td class="actions">
+            <button *ngIf="a.status === 'PENDING'" class="btn-cancel" (click)="cancelAdvisory(a)">
+              Cancelar
+            </button>
+
+            <span *ngIf="a.responseMessage" class="response-msg">
+              {{ a.responseMessage }}
+            </span>
+
+            <span *ngIf="a.status !== 'PENDING' && !a.responseMessage">—</span>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <div *ngIf="!loading && appointments.length === 0" class="empty-state">
+    <div *ngIf="!loading && advisories.length === 0" class="empty-state">
       No has realizado solicitudes todavía.
+      <br>
+      <a routerLink="/consulting" class="btn-primary">Solicitar una asesoría</a>
     </div>
 
     <div class="footer">
